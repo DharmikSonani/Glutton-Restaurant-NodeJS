@@ -4,9 +4,8 @@ import { getAuthID } from '../../constants/AsyncStorage';
 import { setAuthIDInRedux } from '../../redux/Authentication/AuthAction';
 import { useEffect } from 'react';
 import { navigationToReplace } from '../../constants/NavigationController';
-import { RestaurantDBFields, RestaurantDBPath } from '../../constants/Database';
-import { convertTimeStampToDate } from '../../constants/Helper';
 import { setRestDataInRedux } from '../../redux/RestaurantData/RestDataAction';
+import { getRestaurantbyUIDAPI } from '../../api/utils';
 
 const useScreenHooks = (props) => {
 
@@ -36,17 +35,10 @@ const useScreenHooks = (props) => {
         }, 2000);
     }
 
-    const fetchRestData = (authId) => {
+    const fetchRestData = async (uid) => {
         try {
-            RestaurantDBPath
-                .doc(authId)
-                .onSnapshot(async (querySnap) => {
-                    if (querySnap.exists) {
-                        const data = querySnap.data();
-                        data[RestaurantDBFields.createdAt] = convertTimeStampToDate(data[RestaurantDBFields.createdAt]);
-                        dispatch(setRestDataInRedux(data));
-                    }
-                })
+            const res = await getRestaurantbyUIDAPI(uid);
+            res && res?.data && res?.data?.data && dispatch(setRestDataInRedux(res?.data?.data));
         } catch (e) {
             console.log(e);
         }

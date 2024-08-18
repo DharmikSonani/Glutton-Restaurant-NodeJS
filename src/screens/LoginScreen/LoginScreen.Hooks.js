@@ -8,7 +8,7 @@ import { storeAuthID } from '../../constants/AsyncStorage';
 import { setAuthIDInRedux } from '../../redux/Authentication/AuthAction';
 import { navigationToNavigate, navigationToReset } from '../../constants/NavigationController';
 import { setRestDataInRedux } from '../../redux/RestaurantData/RestDataAction';
-import { checkUserByUID, getRestaurantbyUIDAPI } from '../../api/utils';
+import { checkUserByUIDAPI, getRestaurantbyUIDAPI } from '../../api/utils';
 
 const useScreenHooks = (props) => {
 
@@ -50,7 +50,7 @@ const useScreenHooks = (props) => {
                 .signInWithEmailAndPassword(email, password)
                 .then(async (res) => {
                     const uid = res.user.uid;
-                    const user = await checkUserByUID(uid);
+                    const user = await checkUserByUIDAPI(uid);
                     if (user?.data) {
                         if (user?.data?.data) {
                             const type = user.data.data;

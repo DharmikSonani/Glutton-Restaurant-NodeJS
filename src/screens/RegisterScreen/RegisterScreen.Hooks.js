@@ -8,17 +8,15 @@ import { ActionSnackBar, NormalSnackBar } from '../../constants/SnackBars';
 import { requestLocationPermission } from '../../constants/AppPermission';
 import axios from 'axios';
 import auth from "@react-native-firebase/auth"
-import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
-import { RestaurantDBFields, RestaurantDBPath } from '../../constants/Database';
 import { setAuthIDInRedux } from '../../redux/Authentication/AuthAction';
 import { storeAuthID } from '../../constants/AsyncStorage';
 import { navigationToReset } from '../../constants/NavigationController';
 import { format } from 'date-fns';
-import { convertTimeStampToDate } from '../../constants/Helper';
 import { setRestDataInRedux } from '../../redux/RestaurantData/RestDataAction';
 import { emailRegEx, passwordRegEx } from '../../constants/RegularExpression';
 import Geolocation from 'react-native-geolocation-service';
+import { checkMobileNoOfRestaurantAPI, registerRestaurantAPI } from '../../api/utils';
 
 const useScreenHooks = (props) => {
 
@@ -125,7 +123,7 @@ const useScreenHooks = (props) => {
 
     const onNextButtonPress = (_map) => {
         if (activeScreen == 1) {
-            if (restName.trimEnd() != '' && ownerName != '') {
+            if (restName.trim() != '' && ownerName != '') {
                 if (tables == '') {
                     NormalSnackBar('Please Fill Number of tables.')
                 } else if (openTime == '' || closeTime == '') {
@@ -216,95 +214,75 @@ const useScreenHooks = (props) => {
         )
     }
 
-    const onSubmit = () => {
-        setLoading(true);
+    const onSubmit = async () => {
         try {
-            RestaurantDBPath
-                .where(RestaurantDBFields.contactNo, '==', contactNo)
-                .get()
-                .then((querySnap) => {
-                    if (querySnap.size > 0) {
-                        NormalSnackBar("This Mobile Number is already used with Glutton Restaurant.");
+            setLoading(true);
+            const mobileRegistered = await checkMobileNoOfRestaurantAPI({ contactNo: contactNo.trim() })
+            if (mobileRegistered?.data && mobileRegistered?.data?.status == true) {
+                auth()
+                    .createUserWithEmailAndPassword(email, password)
+                    .then((data) => { registerOnDatabase(data.user.uid) })
+                    .catch((e) => {
+                        if (e.code == 'auth/email-already-in-use') {
+                            NormalSnackBar("This Email is already used with Glutton.");
+                        }
                         setLoading(false);
-                    } else {
-                        auth()
-                            .createUserWithEmailAndPassword(email, password)
-                            .then((data) => { registerOnDatabase(data.user.uid) })
-                            .catch((e) => {
-                                if (e.code == 'auth/email-already-in-use') {
-                                    NormalSnackBar("This Email is already used with Glutton.");
-                                }
-                                setLoading(false);
-                            })
-                    }
-                })
+                    })
+            } else {
+                NormalSnackBar(mobileRegistered?.data?.error);
+                setLoading(false);
+            }
         } catch (error) {
             setLoading(false);
         }
     }
 
-    const registerOnDatabase = async (authId) => {
-        const imageUri = await uploadImage(authId);
-
-        let data = {};
-
-        data[RestaurantDBFields.restId] = authId;
-        data[RestaurantDBFields.createdAt] = firestore.Timestamp.fromDate(new Date());
-
-        data[RestaurantDBFields.email] = email.trimEnd();
-        data[RestaurantDBFields.password] = password.trimEnd();
-        data[RestaurantDBFields.contactNo] = contactNo.trimEnd();
-
-        data[RestaurantDBFields.restaurantName] = restName.trimEnd();
-        data[RestaurantDBFields.restImage] = imageUri;
-        data[RestaurantDBFields.ownerName] = ownerName.trimEnd();
-        data[RestaurantDBFields.openTime] = openTime;
-        data[RestaurantDBFields.closeTime] = closeTime;
-        data[RestaurantDBFields.tables] = parseInt(tables);
-
-        data[RestaurantDBFields.address] = address.trimEnd();
-        data[RestaurantDBFields.city] = city.trimEnd();
-        data[RestaurantDBFields.state] = state.trimEnd();
-        data[RestaurantDBFields.pincode] = pincode.trimEnd();
-        data[RestaurantDBFields.coordinates] = {
-            latitude: latitude,
-            longitude: longitude,
-        };
-
-        data[RestaurantDBFields.isActive] = 'false';
-        data[RestaurantDBFields.rate] = 0;
-        data[RestaurantDBFields.reviews] = 0;
-        data[RestaurantDBFields.startDate] = format(new Date(), 'yyyy-MM-dd').toString();
-        data[RestaurantDBFields.endDate] = "";
-
-        RestaurantDBPath
-            .doc(authId)
-            .set(data)
-            .then(async () => {
-                await storeAuthID(authId);
-                dispatch(setAuthIDInRedux(authId));
-                await fetchRestData(authId);
-                reset();
-                setLoading(false);
-                navigationToReset(navigation, NavigationScreens.HomeDrawer);
-                NormalSnackBar('Register Successfull.');
-            })
-
-    }
-
-    const fetchRestData = async (authId) => {
+    const registerOnDatabase = async (uid) => {
         try {
-            await RestaurantDBPath
-                .doc(authId)
-                .onSnapshot(async (querySnap) => {
-                    if (querySnap.exists) {
-                        const data = querySnap.data();
-                        data[RestaurantDBFields.createdAt] = convertTimeStampToDate(data[RestaurantDBFields.createdAt]);
-                        dispatch(setRestDataInRedux(data));
-                    }
-                })
-        } catch (e) {
-            console.log(e);
+            const imageUri = await uploadImage(uid);
+
+            const params = {
+                uid: uid,
+                restaurantName: restName.trim(),
+                restImage: imageUri,
+                ownerName: ownerName.trim(),
+                openTime: openTime,
+                closeTime: closeTime,
+                contactNo: contactNo.trim(),
+                email: email.trim(),
+                tables: parseInt(tables),
+                reviews: 0,
+                rate: 0,
+                address: address.trim(),
+                city: city.trim(),
+                state: state.trim(),
+                pincode: pincode.trim(),
+                coordinates: {
+                    latitude: latitude,
+                    longitude: longitude
+                },
+                startDate: format(new Date(), 'yyyy-MM-dd').toString(),
+                endDate: '',
+                isActive: false
+            };
+
+            const res = await registerRestaurantAPI(params);
+
+            if (res?.data && res?.data?.data) {
+                await storeAuthID(uid);
+                reset();
+                dispatch(setAuthIDInRedux(uid));
+                dispatch(setRestDataInRedux(res?.data?.data));
+                NormalSnackBar('Register Successfull.');
+                navigationToReset(navigation, NavigationScreens.HomeDrawer);
+            } else {
+                NormalSnackBar('Something wents wrong');
+            }
+            setLoading(false);
+        } catch (error) {
+            console.log(error);
+            NormalSnackBar('Something wents wrong');
+            setLoading(false);
         }
     }
 
@@ -315,7 +293,7 @@ const useScreenHooks = (props) => {
             }
             const uploadUri = image;
 
-            const filename = restName.trimEnd() + ' (' + authId + ')';
+            const filename = restName.trim() + ' (' + authId + ')';
             const ext = image.split('/').pop().split('.').pop();
 
             const refString = `All_Restaurants/${authId}/${filename}.${ext}`;

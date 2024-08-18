@@ -12,12 +12,13 @@ const CHECK_USER_URL = `${USER_BASE_URL}/check`;
 
 const RESTAURANT_BASE_URL = `${BASE_URL}/restaurant`;
 const GET_PHOTOS_URL = `${RESTAURANT_BASE_URL}/photo`;
+const RESTAURANT_REGISTER_URL = `${RESTAURANT_BASE_URL}/register`;
+const RESTAURANT_MOBILE_CHECK_URL = `${RESTAURANT_BASE_URL}/check-mobile`;
 
 const RATING_BASE_URL = `${BASE_URL}/rating`;
 
-
 // GET
-export const checkUserByUID = async (uid) => {
+export const checkUserByUIDAPI = async (uid) => {
     const res = await axios.get(`${CHECK_USER_URL}/${uid}`);
     return res;
 }
@@ -38,6 +39,14 @@ export const getRestaurantPhotosAPI = async (id) => {
 }
 
 // POST
+export const registerRestaurantAPI = async (params) => {
+    const res = await axios.post(`${RESTAURANT_REGISTER_URL}`, params);
+    return res;
+}
 
+export const checkMobileNoOfRestaurantAPI = async (params) => {
+    const res = await axios.post(`${RESTAURANT_MOBILE_CHECK_URL}`, params);
+    return res;
+}
 
 // PATCH

@@ -1,8 +1,6 @@
 import firestore from '@react-native-firebase/firestore';
 
-export const AdminDBPath = firestore().collection("Users").doc("Admin").collection("Admin");
 export const RestaurantDBPath = firestore().collection("Users").doc("Restaurant").collection("Restaurant");
-export const CustomerDBPath = firestore().collection("Users").doc("Customers").collection("Customers");
 export const BookingsDBPath = firestore().collection("BookTableData");
 export const InvoiceDBPath = firestore().collection("Invoices");
 export const PackagesDBPath = firestore().collection("Packages");

@@ -41,16 +41,9 @@ export default PrimaryButton
 
 const styles = StyleSheet.create({
     Container: {
-        elevation: 10,
-        shadowColor: COLOR.BLACK,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 20,
         alignItems: 'center',
         height: 40,
         justifyContent: 'center',
-        backgroundColor: COLOR.WHITE,
-        borderRadius: 10,
     },
     GradientStyle: {
         width: '100%',

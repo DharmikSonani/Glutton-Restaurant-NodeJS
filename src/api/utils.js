@@ -22,6 +22,11 @@ export const checkUserByUID = async (uid) => {
     return res;
 }
 
+export const getRestaurantbyUIDAPI = async (uid) => {
+    const res = await axios.get(`${RESTAURANT_BASE_URL}/${uid}`);
+    return res;
+}
+
 export const getRestaurantReviewsAPI = async (id) => {
     const res = await axios.get(`${RATING_BASE_URL}/${id}`);
     return res;

@@ -7,9 +7,8 @@ import { emailRegEx } from '../../constants/RegularExpression';
 import { storeAuthID } from '../../constants/AsyncStorage';
 import { setAuthIDInRedux } from '../../redux/Authentication/AuthAction';
 import { navigationToNavigate, navigationToReset } from '../../constants/NavigationController';
-import { AdminDBPath, CustomerDBPath, RestaurantDBFields, RestaurantDBPath } from '../../constants/Database';
 import { setRestDataInRedux } from '../../redux/RestaurantData/RestDataAction';
-import { convertTimeStampToDate } from '../../constants/Helper';
+import { checkUserByUID, getRestaurantbyUIDAPI } from '../../api/utils';
 
 const useScreenHooks = (props) => {
 
@@ -49,7 +48,29 @@ const useScreenHooks = (props) => {
         try {
             auth()
                 .signInWithEmailAndPassword(email, password)
-                .then((data) => { checkRestaurantData(data.user.uid); })
+                .then(async (res) => {
+                    const uid = res.user.uid;
+                    const user = await checkUserByUID(uid);
+                    if (user?.data) {
+                        if (user?.data?.data) {
+                            const type = user.data.data;
+                            if (type == 'Restaurant') {
+                                await storeAuthID(uid);
+                                dispatch(setAuthIDInRedux(uid));
+                                const data = await getRestaurantbyUIDAPI(uid);
+                                data && data?.data && data?.data?.data && dispatch(setRestDataInRedux(data?.data?.data));
+                                navigationToReset(navigation, NavigationScreens.HomeDrawer);
+                            } else {
+                                auth().signOut();
+                                NormalSnackBar(`This email is register as Glutton ${type}`);
+                            }
+                        }
+                        setLoading(false);
+                    } else {
+                        setLoading(false);
+                        NormalSnackBar('Something wents wrong.');
+                    }
+                })
                 .catch((e) => {
                     console.log(e);
                     if (e.code == 'auth/user-not-found') {
@@ -66,69 +87,6 @@ const useScreenHooks = (props) => {
                     }
                 })
         } catch (e) { console.log(e) }
-    }
-
-    const checkRestaurantData = (authId) => {
-        try {
-            RestaurantDBPath
-                .doc(authId)
-                .onSnapshot(async (querySnap) => {
-                    if (querySnap.exists) {
-                        await storeAuthID(authId);
-                        dispatch(setAuthIDInRedux(authId));
-                        const data = querySnap.data();
-                        data[RestaurantDBFields.createdAt] = convertTimeStampToDate(data[RestaurantDBFields.createdAt]);
-                        dispatch(setRestDataInRedux(data));
-                        navigationToReset(navigation, NavigationScreens.HomeDrawer);
-                        try {
-                            let updateData = {}
-                            updateData[RestaurantDBFields.password] = password;
-                            RestaurantDBPath
-                                .doc(authId)
-                                .update(updateData)
-                        } catch (e) {
-                            console.log(e);
-                        }
-                    } else {
-                        checkAdminData(authId);
-                        checkCustomersData(authId);
-                    }
-                })
-        } catch (e) {
-            console.log(e);
-        }
-    }
-
-    const checkCustomersData = (authId) => {
-        try {
-            CustomerDBPath
-                .doc(authId)
-                .onSnapshot((querySnap) => {
-                    if (querySnap.exists) {
-                        NormalSnackBar('This email is register with Glutton Resto Customer');
-                        auth().signOut();
-                        setLoading(false);
-                    }
-                })
-        } catch (e) {
-            console.log(e);
-        }
-    }
-
-    const checkAdminData = (authId) => {
-        try {
-            AdminDBPath
-                .doc(authId)
-                .onSnapshot((querySnap) => {
-                    if (querySnap.exists) {
-                        NormalSnackBar('This email is register with Glutton Admin.');
-                        auth().signOut();
-                        setLoading(false);
-                    }
-                })
-        } catch (e) {
-            console.log(e);
-        }
     }
 
     return {

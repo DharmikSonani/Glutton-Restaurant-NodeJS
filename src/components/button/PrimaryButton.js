@@ -49,6 +49,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         height: 40,
         justifyContent: 'center',
+        backgroundColor: COLOR.WHITE,
+        borderRadius: 10,
     },
     GradientStyle: {
         width: '100%',

@@ -11,6 +11,7 @@ import { setMenuDataInRedux } from '../../redux/MenuData/MenuDataAction';
 import { setRestDataInRedux } from '../../redux/RestaurantData/RestDataAction';
 import { setPhotosDataInRedux } from '../../redux/PhotosData/PhotosDataAction';
 import { setBookingDataInRedux } from '../../redux/BookingData/BookingDataAction';
+import { getRestaurantbyUIDAPI } from '../../api/utils';
 
 const useScreenHooks = (props) => {
 

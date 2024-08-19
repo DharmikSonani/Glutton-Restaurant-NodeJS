@@ -1,7 +1,6 @@
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Reducers } from '../../constants/Strings';
 import { useEffect, useState } from 'react';
-import { RestaurantDBFields, RestaurantDBPath } from '../../constants/Database';
 import { requestLocationPermission } from '../../constants/AppPermission';
 import { PERMISSIONS, RESULTS, check, request } from 'react-native-permissions';
 import { Linking, Platform } from 'react-native';
@@ -9,6 +8,8 @@ import ImageCropPicker from 'react-native-image-crop-picker';
 import { ActionSnackBar, NormalSnackBar } from '../../constants/SnackBars';
 import axios from 'axios';
 import storage from '@react-native-firebase/storage';
+import { updateRestaurantAPI } from '../../api/utils';
+import { setRestDataInRedux } from '../../redux/RestaurantData/RestDataAction';
 
 const useScreenHooks = (props) => {
 
@@ -16,13 +17,14 @@ const useScreenHooks = (props) => {
     const navigation = props.navigation;
     const restId = useSelector(state => state[Reducers.AuthReducer]);
     const restData = useSelector(state => state[Reducers.RestDataReducer]);
-    const email = restData ? restData[RestaurantDBFields.email] : '';
-    const contact = restData ? restData[RestaurantDBFields.contactNo] : '';
+    const email = restData ? restData['email'] : '';
+    const contact = restData ? restData['contactNo'] : '';
+    const dispatch = useDispatch();
 
     const s = {
         region: {
-            latitude: restData ? parseFloat(restData[RestaurantDBFields.coordinates].latitude) : 0.0000,
-            longitude: restData ? parseFloat(restData[RestaurantDBFields.coordinates].longitude) : 0.0000,
+            latitude: restData ? parseFloat(restData['coordinates'].latitude) : 0.0000,
+            longitude: restData ? parseFloat(restData['coordinates'].longitude) : 0.0000,
             latitudeDelta: 0.001,
             longitudeDelta: 0.001,
         }
@@ -32,19 +34,19 @@ const useScreenHooks = (props) => {
     const [loading, setLoading] = useState(false);
     const [stat, setStat] = useState(s)
 
-    const [image, setImage] = useState(restData && restData[RestaurantDBFields.restImage]);
+    const [image, setImage] = useState(restData && restData['restImage']);
 
-    const [restName, setRestName] = useState(restData && restData[RestaurantDBFields.restaurantName]);
-    const [ownerName, setOwnerName] = useState(restData && restData[RestaurantDBFields.ownerName]);
-    const [tables, setTables] = useState(restData && restData[RestaurantDBFields.tables].toString());
-    const [openTime, setOpenTime] = useState(restData && restData[RestaurantDBFields.openTime]);
-    const [closeTime, setCloseTime] = useState(restData && restData[RestaurantDBFields.closeTime]);
+    const [restName, setRestName] = useState(restData && restData['restaurantName']);
+    const [ownerName, setOwnerName] = useState(restData && restData['ownerName']);
+    const [tables, setTables] = useState(restData && restData['tables'].toString());
+    const [openTime, setOpenTime] = useState(restData && restData['openTime']);
+    const [closeTime, setCloseTime] = useState(restData && restData['closeTime']);
     const [isTimeModalVisible, setIsTimeModalVisible] = useState(false);
 
-    const [address, setAddress] = useState(restData && restData[RestaurantDBFields.address]);
-    const [city, setCity] = useState(restData && restData[RestaurantDBFields.city]);
-    const [state, setState] = useState(restData && restData[RestaurantDBFields.state]);
-    const [pincode, setPincode] = useState(restData && restData[RestaurantDBFields.pincode]);
+    const [address, setAddress] = useState(restData && restData['address']);
+    const [city, setCity] = useState(restData && restData['city']);
+    const [state, setState] = useState(restData && restData['state']);
+    const [pincode, setPincode] = useState(restData && restData['pincode']);
     const [latitude, setLatitude] = useState(s.region.latitude);
     const [longitude, setLongitude] = useState(s.region.longitude);
 
@@ -133,31 +135,34 @@ const useScreenHooks = (props) => {
 
             let data = {};
 
-            data[RestaurantDBFields.restImage] = imageUri;
+            data['restImage'] = imageUri;
 
-            restName.trim() && (data[RestaurantDBFields.restaurantName] = restName.trimEnd());
-            ownerName.trim() && (data[RestaurantDBFields.ownerName] = ownerName.trimEnd());
-            openTime.trim() && (data[RestaurantDBFields.openTime] = openTime);
-            closeTime.trim() && (data[RestaurantDBFields.closeTime] = closeTime);
-            tables && parseInt(tables) > 0 && (data[RestaurantDBFields.tables] = parseInt(tables));
+            restName.trim() && (data['restaurantName'] = restName.trim());
+            ownerName.trim() && (data['ownerName'] = ownerName.trim());
+            openTime.trim() && (data['openTime'] = openTime);
+            closeTime.trim() && (data['closeTime'] = closeTime);
+            tables && parseInt(tables) > 0 && (data['tables'] = parseInt(tables));
 
-            address.trim() && (data[RestaurantDBFields.address] = address.trimEnd());
-            city.trim() && (data[RestaurantDBFields.city] = city.trimEnd());
-            state.trim() && (data[RestaurantDBFields.state] = state.trimEnd());
-            pincode.trim() && (data[RestaurantDBFields.pincode] = pincode.trimEnd());
-            latitude && longitude && (data[RestaurantDBFields.coordinates] = {
+            address.trim() && (data['address'] = address.trim());
+            city.trim() && (data['city'] = city.trim());
+            state.trim() && (data['state'] = state.trim());
+            pincode.trim() && (data['pincode'] = pincode.trim());
+            latitude && longitude && (data['coordinates'] = {
                 latitude: latitude,
                 longitude: longitude,
             });
 
-            RestaurantDBPath
-                .doc(restId)
-                .update(data)
-                .then(() => {
-                    setLoading(false);
-                    NormalSnackBar('Details Updated');
-                    navigation.pop(1);
-                })
+            const res = await updateRestaurantAPI(restId, data);
+
+            if (res?.data && res?.data?.data) {
+                dispatch(setRestDataInRedux(res?.data?.data));
+                NormalSnackBar('Details Updated');
+                navigation.pop(1);
+            } else {
+                NormalSnackBar('Something wents wrong.');
+            }
+            setLoading(false);
+
         } catch (error) {
             console.log(error);
             NormalSnackBar('Something wents wrong.');
@@ -172,7 +177,7 @@ const useScreenHooks = (props) => {
             }
             const uploadUri = image;
 
-            const filename = restName.trimEnd() + ' (' + authId + ')';
+            const filename = restName.trim() + ' (' + authId + ')';
             const ext = image.split('/').pop().split('.').pop();
 
             const refString = `All_Restaurants/${authId}/${filename}.${ext}`;

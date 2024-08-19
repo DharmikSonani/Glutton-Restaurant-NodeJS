@@ -9,7 +9,6 @@ import { setReviewDataInRedux } from '../../redux/ReviewData/ReviewDataAction';
 import { setCategoryDataInRedux } from '../../redux/CategoryData/CategoryDataAction';
 import { setMenuDataInRedux } from '../../redux/MenuData/MenuDataAction';
 import { setRestDataInRedux } from '../../redux/RestaurantData/RestDataAction';
-import { convertTimeStampToDate } from '../../constants/Helper';
 import { setPhotosDataInRedux } from '../../redux/PhotosData/PhotosDataAction';
 import { setBookingDataInRedux } from '../../redux/BookingData/BookingDataAction';
 
@@ -32,7 +31,6 @@ const useScreenHooks = (props) => {
 
     // UseEffects
     useEffect(() => {
-        checkPackage();
         getBookings();
         fetchReviews();
         fetchCategory();
@@ -40,20 +38,14 @@ const useScreenHooks = (props) => {
         fetchPhotos();
         fetchAllBookings();
         Object.keys(restData).length === 0 && fetchRestData(restId);
+        restData?.isActive == false && NormalSnackBar('Please Active New Package.');
     }, []);
 
     // Methods
-    const fetchRestData = (authId) => {
+    const fetchRestData = async (uid) => {
         try {
-            RestaurantDBPath
-                .doc(authId)
-                .onSnapshot(async (querySnap) => {
-                    if (querySnap.exists) {
-                        const data = querySnap.data();
-                        data[RestaurantDBFields.createdAt] = convertTimeStampToDate(data[RestaurantDBFields.createdAt]);
-                        dispatch(setRestDataInRedux(data));
-                    }
-                })
+            const res = await getRestaurantbyUIDAPI(uid);
+            res && res?.data && res?.data?.data && dispatch(setRestDataInRedux(res?.data?.data));
         } catch (e) {
             console.log(e);
         }
@@ -86,36 +78,6 @@ const useScreenHooks = (props) => {
         } catch (e) {
             console.log(e);
             setLoading(false);
-        }
-    }
-
-    const checkPackage = () => {
-        try {
-            RestaurantDBPath
-                .doc(restId)
-                .onSnapshot((querySnap) => {
-                    if (querySnap.exists) {
-                        const { isActive, endDate } = querySnap.data();
-                        if (endDate != '') {
-                            if (isActive == 'true' && new Date(today) > new Date(endDate)) {
-                                try {
-                                    RestaurantDBPath
-                                        .doc(restId)
-                                        .update({
-                                            isActive: 'false',
-                                        })
-                                } catch (e) {
-                                    console.log(e);
-                                }
-                            }
-                        }
-                        if (isActive == "false") {
-                            NormalSnackBar('Please Active New Package.');
-                        }
-                    }
-                })
-        } catch (e) {
-            console.log(e);
         }
     }
 

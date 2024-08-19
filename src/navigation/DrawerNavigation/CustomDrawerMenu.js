@@ -15,7 +15,6 @@ import { removeAuthID } from '../../constants/AsyncStorage';
 import { COLOR, GRADIENTCOLOR } from '../../constants/Colors';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { RestaurantDBFields, RestaurantDBPath } from '../../constants/Database';
 import LinearGradient from 'react-native-linear-gradient';
 import StarRating from '../../components/StarRating';
 import { navigationToNavigate, navigationToReset } from '../../constants/NavigationController';
@@ -23,10 +22,11 @@ import { useState } from 'react';
 import CustomButton from '../../components/button/CustomButton';
 import { NormalSnackBar } from '../../constants/SnackBars';
 import { addMonths, format } from 'date-fns';
-import { removeRestDataFromRedux } from '../../redux/RestaurantData/RestDataAction';
+import { removeRestDataFromRedux, setRestDataInRedux } from '../../redux/RestaurantData/RestDataAction';
 import { removeReviewDataFromRedux } from '../../redux/ReviewData/ReviewDataAction';
 import { removeMenuDataFromRedux } from '../../redux/MenuData/MenuDataAction';
 import { removeCategoryDataFromRedux } from '../../redux/CategoryData/CategoryDataAction';
+import { packageActivationAPI } from '../../api/utils';
 
 export default CustomDrawerMenu = (props) => {
 
@@ -91,20 +91,25 @@ export default CustomDrawerMenu = (props) => {
         )
     }
 
-    const onFreeTrialPress = () => {
-        setLoading(true);
+    const onFreeTrialPress = async () => {
         try {
-            RestaurantDBPath
-                .doc(authId)
-                .update({
-                    startDate: format(new Date(), 'yyyy-MM-dd').toString(),
-                    endDate: format(addMonths(new Date(), 1), 'yyyy-MM-dd').toString(),
-                    isActive: 'true',
-                }).then(() => {
-                    props.navigation.closeDrawer()
-                    NormalSnackBar('Package Activeted');
-                    setLoading(false);
-                })
+            setLoading(true);
+
+            const params = {
+                startDate: format(new Date(), 'yyyy-MM-dd').toString(),
+                endDate: format(addMonths(new Date(), 1), 'yyyy-MM-dd').toString(),
+            }
+
+            const res = await packageActivationAPI(authId, params);
+
+            if (res?.data && res?.data?.data) {
+                props.navigation.closeDrawer();
+                NormalSnackBar('Package Activeted');
+                dispatch(setRestDataInRedux(res?.data?.data));
+            } else {
+                NormalSnackBar('Something wents wrong.');
+            }
+            setLoading(false);
         } catch (e) {
             console.log(e);
             setLoading(false);
@@ -116,9 +121,9 @@ export default CustomDrawerMenu = (props) => {
             <View style={styles.HeaderContainer}>
 
                 {
-                    restdata && restdata[RestaurantDBFields.restImage] &&
+                    restdata && restdata['restImage'] &&
                     <FastImage
-                        source={{ uri: restdata[RestaurantDBFields.restImage] }}
+                        source={{ uri: restdata['restImage'] }}
                         style={styles.HeaderImage}
                         resizeMode='cover'
                     />
@@ -143,7 +148,7 @@ export default CustomDrawerMenu = (props) => {
                                     style={styles.RestNameText}
                                     numberOfLines={1}
                                 >
-                                    {restdata[RestaurantDBFields.restaurantName]}
+                                    {restdata['restaurantName']}
                                 </Text>
                                 <TouchableOpacity
                                     onPress={() => {
@@ -151,7 +156,7 @@ export default CustomDrawerMenu = (props) => {
                                         navigationToNavigate(props.navigation, NavigationScreens.CustomerReviewsScreen);
                                     }}
                                 >
-                                    <StarRating ratings={restdata[RestaurantDBFields.rate]} reviews={restdata[RestaurantDBFields.reviews]} />
+                                    <StarRating ratings={restdata['rate']} reviews={restdata['reviews']} />
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.ProfileButton}>
@@ -186,7 +191,7 @@ export default CustomDrawerMenu = (props) => {
                         </View>
                         : <>
                             {
-                                restdata && restdata[RestaurantDBFields.endDate] == '' &&
+                                restdata && restdata['endDate'] == '' &&
                                 <CustomButton
                                     onPress={onFreeTrialPress}
                                     colors={GRADIENTCOLOR.BLACK_50_100_100_100}
@@ -194,7 +199,7 @@ export default CustomDrawerMenu = (props) => {
                                 />
                             }
                             {
-                                restdata && restdata[RestaurantDBFields.isActive] == 'false' &&
+                                restdata && restdata['isActive'] == false &&
                                 <CustomButton
                                     onPress={() => {
                                         props.navigation.closeDrawer();
@@ -209,10 +214,10 @@ export default CustomDrawerMenu = (props) => {
             </View>
 
             {
-                restdata && restdata[RestaurantDBFields.endDate] && restdata[RestaurantDBFields.isActive] == 'true' && !loading &&
+                restdata && restdata['endDate'] && restdata['isActive'] == true && !loading &&
                 <View style={styles.PackageDetailsContainer}>
                     <Text style={styles.PackageText}>Package Ending Date</Text>
-                    <Text style={[styles.PackageText, { fontSize: 15, }]}>{restdata[RestaurantDBFields.endDate] && format(new Date(restdata[RestaurantDBFields.endDate]), 'dd MMMM, yyyy')}</Text>
+                    <Text style={[styles.PackageText, { fontSize: 15, }]}>{restdata['endDate'] && format(new Date(restdata['endDate']), 'dd MMMM, yyyy')}</Text>
                 </View>
             }
         </View>

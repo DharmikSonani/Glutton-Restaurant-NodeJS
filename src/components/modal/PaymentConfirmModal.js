@@ -2,12 +2,14 @@ import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } fr
 import React, { useState } from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { COLOR, GRADIENTCOLOR } from '../../constants/Colors';
-import { PackagesDBFields, RestaurantDBPath } from '../../constants/Database';
+import { PackagesDBFields } from '../../constants/Database';
 import DataDisplayCard from '../DataDisplayCard';
 import FieldValuePairLabel from '../labels/FieldValuePairLabel';
 import { addMonths, format } from 'date-fns';
-import { NormalSnackBar } from '../../constants/SnackBars';
 import CustomButton from '../button/CustomButton';
+import { setRestDataInRedux } from '../../redux/RestaurantData/RestDataAction';
+import { packageActivationAPI } from '../../api/utils';
+import { useDispatch } from 'react-redux';
 
 const PaymentConfirmModal = ({
     restId,
@@ -21,22 +23,29 @@ const PaymentConfirmModal = ({
     const startDate = format(new Date(), 'yyyy-MM-dd').toString();
     const endDate = data && data[PackagesDBFields.duration] && format(addMonths(new Date(), data[PackagesDBFields.duration]), 'yyyy-MM-dd').toString();
 
-    const onProceedPress = () => {
-        setProccess(true);
+    const dispatch = useDispatch();
+
+    const onProceedPress = async () => {
         try {
-            RestaurantDBPath
-                .doc(restId)
-                .update({
-                    startDate: startDate,
-                    endDate: endDate,
-                    isActive: 'true',
-                }).then(() => {
-                    setProccess(false);
-                    onSuccess("Package Activated.")
-                })
+            setProccess(true);
+
+            const params = {
+                startDate: startDate,
+                endDate: endDate,
+            }
+
+            const res = await packageActivationAPI(restId, params);
+
+            if (res?.data && res?.data?.data) {
+                onSuccess('Package Activeted');
+                dispatch(setRestDataInRedux(res?.data?.data));
+            } else {
+                onSuccess('Something wents wrong.');
+            }
+            setProccess(false);
         } catch (e) {
             console.log(e);
-            NormalSnackBar("Something wents wrong.")
+            onSuccess("Something wents wrong.")
             setProccess(false);
         }
     }

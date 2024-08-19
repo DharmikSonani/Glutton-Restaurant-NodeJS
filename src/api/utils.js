@@ -14,6 +14,8 @@ const RESTAURANT_BASE_URL = `${BASE_URL}/restaurant`;
 const GET_PHOTOS_URL = `${RESTAURANT_BASE_URL}/photo`;
 const RESTAURANT_REGISTER_URL = `${RESTAURANT_BASE_URL}/register`;
 const RESTAURANT_MOBILE_CHECK_URL = `${RESTAURANT_BASE_URL}/check-mobile`;
+const PACKAGE_ACTIVATION_URL = `${RESTAURANT_BASE_URL}/package-activation`;
+const RESTAURANT_UPDATE_URL = `${RESTAURANT_BASE_URL}/update`;
 
 const RATING_BASE_URL = `${BASE_URL}/rating`;
 
@@ -50,3 +52,12 @@ export const checkMobileNoOfRestaurantAPI = async (params) => {
 }
 
 // PATCH
+export const packageActivationAPI = async (uid, params) => {
+    const res = await axios.patch(`${PACKAGE_ACTIVATION_URL}/${uid}`, params);
+    return res;
+}
+
+export const updateRestaurantAPI = async (uid, params) => {
+    const res = await axios.patch(`${RESTAURANT_UPDATE_URL}/${uid}`, params);
+    return res;
+}

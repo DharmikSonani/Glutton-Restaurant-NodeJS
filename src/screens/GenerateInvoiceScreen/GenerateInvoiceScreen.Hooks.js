@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { InvoiceDBFields, InvoiceDBPath } from '../../constants/Database';
 import { NormalSnackBar } from '../../constants/SnackBars';
 import { Alert } from 'react-native';
-import firestore from '@react-native-firebase/firestore';
+import { generateInvoiceAPI, getInvoiceByIDAPI } from '../../api/utils';
 
 const useScreenHooks = (props) => {
 
@@ -21,23 +20,16 @@ const useScreenHooks = (props) => {
     }, [navigation])
 
     // Methods
-    const fetchData = () => {
-        setLoading(true);
+    const fetchData = async () => {
         try {
-            InvoiceDBPath
-                .doc(invoiceId)
-                .collection("Items")
-                .orderBy(InvoiceDBFields.Items.addedAt, 'asc')
-                .onSnapshot((querySnap) => {
-                    list = querySnap.docs.map((doc, i) => {
-                        itemNo = i + 1;
-                        const { itemName, itemPrice, qty, total } = doc.data();
-                        return ({ itemName, itemPrice, qty, total, itemNo });
-                    })
-                    setItems(list);
-                    setLoading(false);
-                })
-
+            setLoading(true);
+            const res = await getInvoiceByIDAPI(invoiceId);
+            if (res?.data && res?.data?.data) {
+                setItems(res?.data?.data?.items);
+            } else {
+                NormalSnackBar('Something wents wrong.');
+            }
+            setLoading(false);
         } catch (e) {
             setLoading(false);
             console.log(e);
@@ -45,17 +37,15 @@ const useScreenHooks = (props) => {
 
     }
 
-    const generateInvoice = () => {
+    const generateInvoice = async () => {
         try {
-            InvoiceDBPath
-                .doc(invoiceId)
-                .update({
-                    isComplete: 'true',
-                    generatedAt: firestore.Timestamp.fromDate(new Date()),
-                }).then(() => {
-                    navigation.pop(2);
-                    NormalSnackBar("Invoice Generated.");
-                })
+            const res = await generateInvoiceAPI(invoiceId);
+            if (res?.data && res?.data?.data) {
+                navigation.pop(2);
+                NormalSnackBar("Invoice Generated.");
+            } else {
+                NormalSnackBar('Something wents wrong.');
+            }
         } catch (e) {
             console.log(e);
         }

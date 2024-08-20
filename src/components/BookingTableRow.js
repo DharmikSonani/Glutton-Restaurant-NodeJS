@@ -14,9 +14,9 @@ const BookingTableRow = ({
 }) => {
     return (
         <View style={styles.Container}>
-            <Text style={[{ width: BookingDataTableHeader[0].width }, styles.ListTextStyle]} numberOfLines={1}>{moment(data.time, ['hh:mm']).format('hh:mm A')}</Text>
-            <Text style={[{ width: BookingDataTableHeader[1].width }, styles.ListTextStyle]} numberOfLines={1}>{format(new Date(data.date), 'do MMM, yyyy')}</Text>
-            <Text style={[{ width: BookingDataTableHeader[2].width }, styles.ListTextStyle]} numberOfLines={1}>{data.noOfGuest}</Text>
+            <Text style={[{ width: BookingDataTableHeader[0].width }, styles.ListTextStyle]} numberOfLines={1}>{data?.booking?.time && moment(data?.booking?.time, ['hh:mm']).format('hh:mm A')}</Text>
+            <Text style={[{ width: BookingDataTableHeader[1].width }, styles.ListTextStyle]} numberOfLines={1}>{data?.booking?.date && format(new Date(data?.booking?.date), 'do MMM, yyyy')}</Text>
+            <Text style={[{ width: BookingDataTableHeader[2].width }, styles.ListTextStyle]} numberOfLines={1}>{data?.booking?.noOfGuest}</Text>
             <View style={[{ width: BookingDataTableHeader[3].width }, styles.ListTextStyle]}>
                 {
                     data.status == "Verified" ?

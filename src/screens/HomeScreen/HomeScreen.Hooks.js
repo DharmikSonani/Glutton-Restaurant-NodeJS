@@ -3,7 +3,7 @@ import { NavigationScreens, Reducers } from '../../constants/Strings';
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import moment from 'moment';
-import { BookingsDBFields, BookingsDBPath, InvoiceDBFields, InvoiceDBPath, RatingDBFields, RatingDBPath, RestaurantDBFields, RestaurantDBPath } from '../../constants/Database';
+import { BookingsDBPath, InvoiceDBFields, InvoiceDBPath, RatingDBFields, RatingDBPath, RestaurantDBFields, RestaurantDBPath } from '../../constants/Database';
 import { NormalSnackBar } from '../../constants/SnackBars';
 import { setReviewDataInRedux } from '../../redux/ReviewData/ReviewDataAction';
 import { setCategoryDataInRedux } from '../../redux/CategoryData/CategoryDataAction';
@@ -11,7 +11,7 @@ import { setMenuDataInRedux } from '../../redux/MenuData/MenuDataAction';
 import { setRestDataInRedux } from '../../redux/RestaurantData/RestDataAction';
 import { setPhotosDataInRedux } from '../../redux/PhotosData/PhotosDataAction';
 import { setBookingDataInRedux } from '../../redux/BookingData/BookingDataAction';
-import { getRestaurantbyUIDAPI, getRestaurantPhotosAPI } from '../../api/utils';
+import { getAllBookingsAPI, getRestaurantbyUIDAPI, getRestaurantPhotosAPI } from '../../api/utils';
 
 const useScreenHooks = (props) => {
 
@@ -55,27 +55,27 @@ const useScreenHooks = (props) => {
     const getBookings = async () => {
         setLoading(true);
         try {
-            BookingsDBPath
-                .where(BookingsDBFields.date, '==', today)
-                .where(BookingsDBFields.restId, '==', restId)
-                .orderBy(BookingsDBFields.time, 'desc')
-                .onSnapshot((querySnap) => {
-                    const list = querySnap.docs.map((doc, i) => {
-                        const docId = doc.id;
-                        const { custContactNo, custName, date, isCancel, isVerify, noOfGuest, time, discount, custId, } = doc.data();
-                        let status = '';
-                        if (isVerify == 'true') {
-                            status = 'Verified';
-                        } else if (isCancel == 'true') {
-                            status = 'Cancelled';
-                        } else if (isVerify == 'false' && isCancel == 'false') {
-                            status = 'Pending';
-                        }
-                        return ({ docId, custContactNo, custName, date, isCancel, isVerify, noOfGuest, time, status, discount, custId, });
-                    })
-                    setBookings(list);
-                    setLoading(false);
-                })
+            // BookingsDBPath
+            //     .where(BookingsDBFields.date, '==', today)
+            //     .where(BookingsDBFields.restId, '==', restId)
+            //     .orderBy(BookingsDBFields.time, 'desc')
+            //     .onSnapshot((querySnap) => {
+            //         const list = querySnap.docs.map((doc, i) => {
+            //             const docId = doc.id;
+            //             const { custContactNo, custName, date, isCancel, isVerify, noOfGuest, time, discount, custId, } = doc.data();
+            //             let status = '';
+            //             if (isVerify == 'true') {
+            //                 status = 'Verified';
+            //             } else if (isCancel == 'true') {
+            //                 status = 'Cancelled';
+            //             } else if (isVerify == 'false' && isCancel == 'false') {
+            //                 status = 'Pending';
+            //             }
+            //             return ({ docId, custContactNo, custName, date, isCancel, isVerify, noOfGuest, time, status, discount, custId, });
+            //         })
+            //         setBookings(list);
+            //         setLoading(false);
+            //     })
         } catch (e) {
             console.log(e);
             setLoading(false);
@@ -223,28 +223,10 @@ const useScreenHooks = (props) => {
         }
     }
 
-    const fetchAllBookings = () => {
+    const fetchAllBookings = async () => {
         try {
-            BookingsDBPath
-                .where(BookingsDBFields.restId, '==', restId)
-                .orderBy(BookingsDBFields.date, 'desc')
-                .orderBy(BookingsDBFields.time, 'desc')
-                .onSnapshot((querySnap) => {
-                    const list = querySnap.docs.map((doc, i) => {
-                        const docId = doc.id;
-                        const { custContactNo, custEmail, custName, date, isCancel, isVerify, noOfGuest, time } = doc.data();
-                        let status = '';
-                        if (isVerify == 'true') {
-                            status = 'Verified';
-                        } else if (isCancel == 'true') {
-                            status = 'Cancelled';
-                        } else if (isVerify == 'false' && isCancel == 'false') {
-                            status = 'Not Verified';
-                        }
-                        return ({ docId, custContactNo, custEmail, custName, date, isCancel, isVerify, noOfGuest, time, status });
-                    })
-                    dispatch(setBookingDataInRedux(list));
-                })
+            const res = await getAllBookingsAPI(restId);
+            res?.data && res?.data?.data && dispatch(setBookingDataInRedux(res?.data?.data));
         } catch (e) {
             console.log(e);
         }

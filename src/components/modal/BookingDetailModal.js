@@ -2,7 +2,6 @@ import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { COLOR, GRADIENTCOLOR } from '../../constants/Colors';
-import { BookingsDBFields, } from '../../constants/Database';
 import { NavigationScreens, } from '../../constants/Strings';
 import DataDisplayCard from '../DataDisplayCard';
 import CustomButton from '../button/CustomButton';
@@ -22,39 +21,39 @@ const BookingDetailModal = ({
 
     custData.push({
         field: 'Name',
-        value: data[BookingsDBFields.custName],
+        value: data?.customer?.name,
     })
 
-    data[BookingsDBFields.custContactNo] && custData.push({
+    data?.customer?.contact && custData.push({
         field: 'Contact No.',
-        value: `+91 ${data[BookingsDBFields.custContactNo]}`,
+        value: `+91 ${data?.customer?.contact}`,
     });
 
-    data[BookingsDBFields.custEmail] && custData.push({
+    data?.customer?.email && custData.push({
         field: 'E-Mail',
-        value: data[BookingsDBFields.custEmail],
+        value: data?.customer?.email,
     });
 
     let bookingData = [];
 
     bookingData.push({
         field: 'Booking ID',
-        value: data.docId,
+        value: data._id,
     });
 
-    data[BookingsDBFields.noOfGuest] && bookingData.push({
+    data?.booking?.noOfGuest && bookingData.push({
         field: 'Person',
-        value: data[BookingsDBFields.noOfGuest],
+        value: data?.booking?.noOfGuest,
     });
 
-    data[BookingsDBFields.time] && bookingData.push({
+    data?.booking?.time && bookingData.push({
         field: 'Time',
-        value: moment(data[BookingsDBFields.time], ['hh:mm']).format('hh:mm A'),
+        value: moment(data?.booking?.time, ['hh:mm']).format('hh:mm A'),
     });
 
-    data[BookingsDBFields.date] && bookingData.push({
+    data?.booking?.date && bookingData.push({
         field: 'Date',
-        value: format(new Date(data[BookingsDBFields.date]), 'do MMMM, yyyy'),
+        value: format(new Date(data?.booking?.date), 'do MMMM, yyyy'),
     });
 
     const status = data.status == "Not Verified" ? bookingStatus["Pending"] : bookingStatus[data.status];

@@ -78,7 +78,7 @@ const AllBookingsScreen = (props) => {
             <FlatList
                 data={data}
                 renderItem={({ item }) => <BookingTableRow data={item} onViewPress={onViewBookingPress} />}
-                keyExtractor={item => item.docId}
+                keyExtractor={item => item._id}
                 showsVerticalScrollIndicator={false}
                 style={styles.Container}
                 contentContainerStyle={styles.ContentContainer}

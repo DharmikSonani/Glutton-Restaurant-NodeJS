@@ -8,18 +8,27 @@ export const SOCKET_URL = 'https://formally-valid-mite.ngrok-free.app/';
 const BASE_URL = `${DOMAIN}api/`;
 
 const USER_BASE_URL = `${BASE_URL}/user`;
+
 const CHECK_USER_URL = `${USER_BASE_URL}/check`;
 
 const RESTAURANT_BASE_URL = `${BASE_URL}/restaurant`;
+
 const GET_PHOTOS_URL = `${RESTAURANT_BASE_URL}/photo`;
 const ADD_PHOTO_URL = `${GET_PHOTOS_URL}/add`;
 const REMOVE_PHOTO_URL = `${GET_PHOTOS_URL}/remove`;
+
 const RESTAURANT_REGISTER_URL = `${RESTAURANT_BASE_URL}/register`;
+
 const RESTAURANT_MOBILE_CHECK_URL = `${RESTAURANT_BASE_URL}/check-mobile`;
+
 const PACKAGE_ACTIVATION_URL = `${RESTAURANT_BASE_URL}/package-activation`;
+
 const RESTAURANT_UPDATE_URL = `${RESTAURANT_BASE_URL}/update`;
 
 const RATING_BASE_URL = `${BASE_URL}/rating`;
+
+const BOOKING_BASE_URL = `${BASE_URL}/booking`;
+const GET_ALL_BOOKINGS_URL = `${BOOKING_BASE_URL}/restaurant`;
 
 // GET
 export const checkUserByUIDAPI = async (uid) => {
@@ -39,6 +48,11 @@ export const getRestaurantReviewsAPI = async (id) => {
 
 export const getRestaurantPhotosAPI = async (id) => {
     const res = await axios.get(`${GET_PHOTOS_URL}/${id}`);
+    return res;
+}
+
+export const getAllBookingsAPI = async (id) => {
+    const res = await axios.get(`${GET_ALL_BOOKINGS_URL}/${id}`);
     return res;
 }
 

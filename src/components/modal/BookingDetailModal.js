@@ -92,7 +92,7 @@ const BookingDetailModal = ({
                             onPress={() => {
                                 setModalVisible(false)
                                 navigation.navigate(NavigationScreens.InvoiceScreen, {
-                                    invoiceId: data.docId,
+                                    invoiceId: data._id,
                                 });
                             }}
                             colors={GRADIENTCOLOR.BLACK_50_100_100_100}

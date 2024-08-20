@@ -2,20 +2,19 @@ import { StyleSheet, Text, View, Dimensions, Animated } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import { ActivityIndicator } from 'react-native';
-import { format } from 'date-fns';
 import { COLOR } from '../../../constants/Colors';
 import { NormalSnackBar } from '../../../constants/SnackBars';
 import { useSelector } from 'react-redux';
 import { Reducers } from '../../../constants/Strings';
 import { verifyBookingAPI } from '../../../api/utils';
 import socketServices from '../../../api/Socket';
+import moment from 'moment';
 
 const { width } = Dimensions.get('window');
 
 const QRScannerModal = () => {
 
     const [verifying, setVerifying] = useState(false);
-    const currentDateTime = new Date().toString();
     const animation = useRef(new Animated.Value(0)).current;
     const animationDuration = 1500;
     const [animationType, setAnimationType] = useState(1);
@@ -36,7 +35,7 @@ const QRScannerModal = () => {
     const onSuccess = async (id) => {
         setVerifying(true);
         try {
-            const res = await verifyBookingAPI(id, { restId: restId, datetime: currentDateTime });
+            const res = await verifyBookingAPI(id, { restId: restId, datetime: moment(new Date()).format('HH:mm').toString() });
             if (res?.data) {
                 if (res?.data?.data) {
                     socketServices.emit('VerifiyBooking', res?.data?.data)

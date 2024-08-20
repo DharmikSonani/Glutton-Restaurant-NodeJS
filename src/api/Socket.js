@@ -27,16 +27,16 @@ class WSService {
     }
 
     emit(event, data = {}) {
-        this.socket.emit(event, data)
+        this.socket?.emit(event, data)
     }
     on(event, cb) {
-        this.socket.on(event, cb)
+        this.socket?.on(event, cb)
     }
     off(event, cb) {
-        this.socket.off(event, cb)
+        this.socket?.off(event, cb)
     }
     removeListener(listenerName) {
-        this.socket.removeListener(listenerName)
+        this.socket?.removeListener(listenerName)
     }
 }
 

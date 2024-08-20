@@ -3,7 +3,7 @@ import { NavigationScreens, Reducers } from '../../constants/Strings';
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import moment from 'moment';
-import { InvoiceDBFields, InvoiceDBPath, RatingDBFields, RatingDBPath, RestaurantDBPath } from '../../constants/Database';
+import { InvoiceDBFields, InvoiceDBPath, RestaurantDBPath } from '../../constants/Database';
 import { NormalSnackBar } from '../../constants/SnackBars';
 import { setReviewDataInRedux } from '../../redux/ReviewData/ReviewDataAction';
 import { setCategoryDataInRedux } from '../../redux/CategoryData/CategoryDataAction';
@@ -11,7 +11,7 @@ import { setMenuDataInRedux } from '../../redux/MenuData/MenuDataAction';
 import { setRestDataInRedux } from '../../redux/RestaurantData/RestDataAction';
 import { setPhotosDataInRedux } from '../../redux/PhotosData/PhotosDataAction';
 import { setBookingDataInRedux } from '../../redux/BookingData/BookingDataAction';
-import { getAllBookingsAPI, getRestaurantbyUIDAPI, getRestaurantPhotosAPI, getTodayBookingsAPI } from '../../api/utils';
+import { getAllBookingsAPI, getRestaurantbyUIDAPI, getRestaurantPhotosAPI, getRestaurantReviewsAPI, getTodayBookingsAPI } from '../../api/utils';
 import socketServices from '../../api/Socket';
 
 const useScreenHooks = (props) => {
@@ -48,6 +48,10 @@ const useScreenHooks = (props) => {
         socketServices.on("CancelBookingForRestaurant", fetchAllBookings);
         socketServices.on("VerifyBookingForToday", getBookings);
         socketServices.on("VerifyBookingForRestaurant", fetchAllBookings);
+        socketServices.on("RestReviewAdded", () => {
+            fetchReviews();
+            fetchRestData(restId);
+        });
 
         return () => {
             socketServices.removeListener('NewBookingForToday');
@@ -56,6 +60,7 @@ const useScreenHooks = (props) => {
             socketServices.removeListener('CancelBookingForRestaurant');
             socketServices.removeListener('VerifyBookingForToday');
             socketServices.removeListener('VerifyBookingForRestaurant');
+            socketServices.removeListener('RestReviewAdded');
         }
     }, []);
 
@@ -149,19 +154,10 @@ const useScreenHooks = (props) => {
         }
     }
 
-    const fetchReviews = () => {
+    const fetchReviews = async () => {
         try {
-            RatingDBPath
-                .orderBy(RatingDBFields.time, 'desc')
-                .where(RatingDBFields.restId, '==', restId)
-                .onSnapshot((querySnap) => {
-                    const list = querySnap.docs.map((doc, i) => {
-                        const { rating, review, time, userId } = doc.data();
-                        timeStamp = time.toDate().toString();
-                        return { rating, review, timeStamp, userId, i }
-                    })
-                    dispatch(setReviewDataInRedux(list));
-                })
+            const res = await getRestaurantReviewsAPI(restId);
+            res?.data && res?.data?.data && dispatch(setReviewDataInRedux(res?.data?.data));
         } catch (e) {
             console.log(e);
         }

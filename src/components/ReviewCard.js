@@ -1,36 +1,15 @@
 import { StyleSheet, Text, View, } from 'react-native'
-import React, { useState, useEffect, memo } from 'react'
-import firestore from '@react-native-firebase/firestore';
+import React, { memo } from 'react'
 import StarRating from './StarRating';
 import LinearGradient from 'react-native-linear-gradient'
 import FastImage from 'react-native-fast-image';
 import { COLOR, GRADIENTCOLOR } from '../constants/Colors';
-import { RatingDBFields } from '../constants/Database';
 import moment from 'moment';
 
 const ReviewCard = ({ data }) => {
-    const [userName, setUserName] = useState('');
-    const [userImg, setUserImg] = useState('');
-
-    useEffect(() => {
-        fetchData();
-    }, [])
-
-    const fetchData = async () => {
-        try {
-            firestore()
-                .collection("Users")
-                .doc("Customers")
-                .collection("Customers")
-                .doc(data.userId)
-                .onSnapshot((querySnap) => {
-                    setUserName(querySnap.data().userName);
-                    setUserImg(querySnap.data().userImg);
-                })
-        } catch (e) {
-            console.log(e);
-        }
-    }
+    const userName = data?.userId?.userName;
+    const userImg = data?.userId?.userImg;
+    const time = data?.createdAt && moment(new Date(data?.createdAt)).fromNow().toString();
 
     return (
         <View style={[styles.Container]}>
@@ -59,19 +38,19 @@ const ReviewCard = ({ data }) => {
                         {userName ? userName : 'Glutton User'}
                     </Text>
                     {
-                        data.timeStamp &&
+                        time &&
                         <Text style={styles.TimeText}>
-                            {moment(new Date(data.timeStamp)).fromNow()}
+                            {time}
                         </Text>
                     }
                 </View>
             </View>
             <View style={styles.ContentContainer}>
-                <StarRating ratings={data[RatingDBFields.rating]} />
+                <StarRating ratings={data['rating']} />
                 <Text
                     style={styles.ContentText}
                 >
-                    {data[RatingDBFields.review]}
+                    {data['review']}
                 </Text>
             </View>
         </View>

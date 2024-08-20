@@ -34,7 +34,7 @@ const CustomerReviewsScreen = (props) => {
                 renderItem={
                     ({ item }) => <ReviewCard data={item} />
                 }
-                keyExtractor={item => item.i}
+                keyExtractor={item => item._id}
                 showsVerticalScrollIndicator={false}
                 bounces={false}
                 contentContainerStyle={styles.ContentContainer}

@@ -2,7 +2,6 @@ import { useSelector } from 'react-redux';
 import { Reducers } from '../../constants/Strings';
 import { useEffect, useState } from 'react';
 import { RatingFilter } from '../../constants/Helper';
-import { RatingDBFields } from '../../constants/Database';
 
 const useScreenHooks = (props) => {
 
@@ -25,7 +24,7 @@ const useScreenHooks = (props) => {
         if (star == "All") {
             setData(allData);
         } else {
-            setData(allData.filter((i) => i[RatingDBFields.rating] == star))
+            setData(allData.filter((i) => i['rating'] == star))
         }
     }
 

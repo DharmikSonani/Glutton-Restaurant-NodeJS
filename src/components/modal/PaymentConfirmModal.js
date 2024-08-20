@@ -2,7 +2,6 @@ import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } fr
 import React, { useState } from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { COLOR, GRADIENTCOLOR } from '../../constants/Colors';
-import { PackagesDBFields } from '../../constants/Database';
 import DataDisplayCard from '../DataDisplayCard';
 import FieldValuePairLabel from '../labels/FieldValuePairLabel';
 import { addMonths, format } from 'date-fns';
@@ -21,7 +20,7 @@ const PaymentConfirmModal = ({
 
     const [proccess, setProccess] = useState(false);
     const startDate = format(new Date(), 'yyyy-MM-dd').toString();
-    const endDate = data && data[PackagesDBFields.duration] && format(addMonths(new Date(), data[PackagesDBFields.duration]), 'yyyy-MM-dd').toString();
+    const endDate = data && data['duration'] && format(addMonths(new Date(), data['duration']), 'yyyy-MM-dd').toString();
 
     const dispatch = useDispatch();
 
@@ -63,15 +62,15 @@ const PaymentConfirmModal = ({
                     <DataDisplayCard title={'Confirm Details'}>
                         <FieldValuePairLabel
                             field={'Package Name'}
-                            value={data[PackagesDBFields.packageName]}
+                            value={data['packageName']}
                         />
                         <FieldValuePairLabel
                             field={'Price'}
-                            value={`₹ ${data[PackagesDBFields.price] && parseFloat(data[PackagesDBFields.price]).toFixed(2)}`}
+                            value={`₹ ${data['price'] && parseFloat(data['price']).toFixed(2)}`}
                         />
                         <FieldValuePairLabel
                             field={'Duration'}
-                            value={`${data[PackagesDBFields.duration]} Month${data[PackagesDBFields.duration] > 1 ? 's' : ''}`}
+                            value={`${data['duration']} Month${data['duration'] > 1 ? 's' : ''}`}
                         />
                         <FieldValuePairLabel
                             field={'Start Date'}

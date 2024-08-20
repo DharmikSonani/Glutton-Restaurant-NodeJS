@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Reducers } from '../../constants/Strings';
 import { useSelector } from 'react-redux';
-import { PackagesDBFields, PackagesDBPath } from '../../constants/Database';
 import { NormalSnackBar } from '../../constants/SnackBars';
+import { getPackagesAPI } from '../../api/utils';
 
 const useScreenHooks = (props) => {
 
@@ -22,19 +22,16 @@ const useScreenHooks = (props) => {
     }, [])
 
     // Methods
-    const fetchPackages = () => {
-        setLoading(true);
+    const fetchPackages = async () => {
         try {
-            PackagesDBPath
-                .orderBy(PackagesDBFields.duration, 'asc')
-                .onSnapshot((querySnap) => {
-                    const list = querySnap.docs.map((doc, i) => {
-                        return (doc.data());
-                    })
-                    setPackages(list);
-                    list.length > 0 && setSelectedPackage(list[0]);
-                    setLoading(false);
-                })
+            setLoading(true);
+            const res = await getPackagesAPI();
+            if (res?.data && res?.data?.data) {
+                const list = res?.data?.data;
+                setPackages(list);
+                list.length > 0 && setSelectedPackage(list[0]);
+            }
+            setLoading(false);
         } catch (e) {
             console.log(e);
             setLoading(false);

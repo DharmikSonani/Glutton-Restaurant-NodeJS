@@ -36,6 +36,8 @@ const TEMP_INVOICE_URL = `${INVOICE_BASE_URL}/temp`;
 const TABLE_ALLOCATE_URL = `${INVOICE_BASE_URL}/table-allocate`;
 const GENERATE_INVOICE_URL = `${INVOICE_BASE_URL}/generate`;
 
+const PACKAGE_BASE_URL = `${BASE_URL}/package`;
+
 // GET
 export const checkUserByUIDAPI = async (uid) => {
     const res = await axios.get(`${CHECK_USER_URL}/${uid}`);
@@ -64,6 +66,11 @@ export const getTempInvoiceAPI = async (id) => {
 
 export const getInvoiceByIDAPI = async (id) => {
     const res = await axios.get(`${INVOICE_BASE_URL}/${id}`);
+    return res;
+}
+
+export const getPackagesAPI = async () => {
+    const res = await axios.get(`${PACKAGE_BASE_URL}`);
     return res;
 }
 

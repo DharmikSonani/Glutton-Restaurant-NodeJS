@@ -15,7 +15,7 @@ const { width } = Dimensions.get('window');
 const QRScannerModal = () => {
 
     const [verifying, setVerifying] = useState(false);
-    const currentDate = format(new Date(), 'yyyy-MM-dd').toString();
+    const currentDateTime = new Date().toString();
     const animation = useRef(new Animated.Value(0)).current;
     const animationDuration = 1500;
     const [animationType, setAnimationType] = useState(1);
@@ -36,7 +36,7 @@ const QRScannerModal = () => {
     const onSuccess = async (id) => {
         setVerifying(true);
         try {
-            const res = await verifyBookingAPI(id, { restId: restId });
+            const res = await verifyBookingAPI(id, { restId: restId, datetime: currentDateTime });
             if (res?.data) {
                 if (res?.data?.data) {
                     socketServices.emit('VerifiyBooking', res?.data?.data)

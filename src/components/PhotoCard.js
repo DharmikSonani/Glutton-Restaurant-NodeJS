@@ -19,15 +19,29 @@ const PhotoCard = ({
     return (
         <View style={[styles.Container, { width: (width - 30 - ((numOfColumns - 1) * 10)) / numOfColumns }]}>
             {
-                data.id > 0
+                data == 0
                     ?
+                    <TouchableOpacity
+                        style={styles.ContentContainer}
+                        onPress={onAddPress}
+                    >
+                        <LinearGradient
+                            colors={GRADIENTCOLOR.BLACK_50_100_100_100}
+                            style={styles.GradientStyle}
+                            angle={150}
+                            useAngle
+                        >
+                            <MaterialIcons name='photo' size={50} color={COLOR.WHITE} />
+                        </LinearGradient>
+                    </TouchableOpacity>
+                    :
                     <View style={styles.ContentContainer}>
                         <SkeletonPlaceholder speed={1000} >
                             <View style={styles.ContentContainer} />
                         </SkeletonPlaceholder>
                         <View style={[styles.ContentContainer, { position: 'absolute', zIndex: 100 }]}>
                             <FastImage
-                                source={{ uri: data.imgUrl }}
+                                source={{ uri: data }}
                                 style={styles.ContentContainer}
                                 resizeMode='cover'
                             />
@@ -49,20 +63,6 @@ const PhotoCard = ({
                             </TouchableOpacity>
                         </View>
                     </View>
-                    :
-                    <TouchableOpacity
-                        style={styles.ContentContainer}
-                        onPress={onAddPress}
-                    >
-                        <LinearGradient
-                            colors={GRADIENTCOLOR.BLACK_50_100_100_100}
-                            style={styles.GradientStyle}
-                            angle={150}
-                            useAngle
-                        >
-                            <MaterialIcons name='photo' size={50} color={COLOR.WHITE} />
-                        </LinearGradient>
-                    </TouchableOpacity>
             }
         </View>
     )
@@ -72,7 +72,6 @@ export default memo(PhotoCard)
 
 const styles = StyleSheet.create({
     Container: {
-        // flex: 1,
         width: imgWidth,
         aspectRatio: 1 / 1.5,
         margin: 5,

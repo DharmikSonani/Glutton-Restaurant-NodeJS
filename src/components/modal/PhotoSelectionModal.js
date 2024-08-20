@@ -11,7 +11,9 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FastImage from 'react-native-fast-image';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
-import { RestaurantDBPath } from '../../constants/Database';
+import { addPhotoAPI } from '../../api/utils';
+import { setPhotosDataInRedux } from '../../redux/PhotosData/PhotosDataAction';
+import { useDispatch } from 'react-redux';
 
 const PhotoSelectionModal = ({
     modalVisible,
@@ -23,6 +25,7 @@ const PhotoSelectionModal = ({
     const [image, setImage] = useState('');
     const [proccess, setProccess] = useState(false);
     const [tranfered, setTranfered] = useState('');
+    const dispatch = useDispatch();
 
     const onImageSelectPress = async () => {
         const granted = await checkPermission(
@@ -34,8 +37,7 @@ const PhotoSelectionModal = ({
             ImageCropPicker.openPicker({
                 width: 600,
                 height: 900,
-                cropping: true,
-                compressImageQuality: 0.5,
+                compressImageQuality: 0.9,
                 mediaType: 'photo',
             }).then(image => {
                 setImage(image.path);
@@ -55,8 +57,7 @@ const PhotoSelectionModal = ({
             ImageCropPicker.openCamera({
                 width: 600,
                 height: 900,
-                cropping: true,
-                compressImageQuality: 0.5,
+                compressImageQuality: 0.9,
                 mediaType: 'photo',
             }).then(image => {
                 setImage(image.path);
@@ -126,18 +127,15 @@ const PhotoSelectionModal = ({
         try {
             setProccess(true)
             const imageUri = await uploadImage();
-            RestaurantDBPath
-                .doc(restId)
-                .collection('Images')
-                .doc()
-                .set({
-                    imgUrl: imageUri,
-                    addedAt: firestore.Timestamp.fromDate(new Date()),
-                }).then(() => {
-                    setProccess(false);
-                    setModalVisible(false);
-                    onSuccess();
-                })
+
+            const res = await addPhotoAPI(restId, { img: imageUri });
+
+            if (res?.data && res?.data?.data) {
+                setModalVisible(false);
+                onSuccess();
+                dispatch(setPhotosDataInRedux([0, ...res?.data?.data?.images]));
+            }
+            setProccess(false);
         } catch (e) {
             console.log(e);
             setProccess(false);

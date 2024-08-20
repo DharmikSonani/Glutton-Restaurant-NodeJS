@@ -1,9 +1,11 @@
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Reducers } from '../../constants/Strings';
-import { RestaurantDBPath } from '../../constants/Database';
 import storage from '@react-native-firebase/storage';
 import { NormalSnackBar } from '../../constants/SnackBars';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { getRestaurantPhotosAPI, removePhotoAPI } from '../../api/utils';
+import { setPhotosDataInRedux } from '../../redux/PhotosData/PhotosDataAction';
+import { useIsFocused } from '@react-navigation/native';
 
 const useScreenHooks = (props) => {
 
@@ -11,30 +13,34 @@ const useScreenHooks = (props) => {
     const navigation = props.navigation;
     const restId = useSelector(state => state[Reducers.AuthReducer]);
     const data = useSelector(state => state[Reducers.PhotosDataReducer]);
-    const RestImagePath = RestaurantDBPath.doc(restId).collection('Images');
+    const dispatch = useDispatch();
+    const isFocused = useIsFocused();
 
     // UseStates
     const [isImageModalVisible, setIsImageModalVisible] = useState(false);
 
     // UseEffects
-
+    useEffect(() => {
+        isFocused && data?.length <= 0 && fetchPhotos();
+    }, [isFocused])
 
     // Methods
-    const deleteFirestoreData = (imgId) => {
-        RestImagePath
-            .doc(imgId)
-            .delete()
-            .then(() => { })
-            .catch((e) => {
-                console.log("Error Deleting Photo ," + e)
-                NormalSnackBar("Something wents wrong.")
-            })
+    const deleteFirestoreData = async (image) => {
+        try {
+            const res = await removePhotoAPI(restId, { img: image });
+            if (res?.data && res?.data?.data) {
+                NormalSnackBar("Image Removed.");
+                dispatch(setPhotosDataInRedux([0, ...res?.data?.data?.images]));
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     const onRemovePress = (data) => {
         try {
-            if (data.imgUrl) {
-                const storageRef = storage().refFromURL(data.imgUrl)
+            if (data) {
+                const storageRef = storage().refFromURL(data)
                 const imageRef = storage().ref(storageRef.fullPath)
                 imageRef
                     .delete()
@@ -46,8 +52,7 @@ const useScreenHooks = (props) => {
                         NormalSnackBar("Something wents wrong.")
                     })
             }
-            deleteFirestoreData(data.imgId);
-            NormalSnackBar("Image Removed.")
+            deleteFirestoreData(data);
         } catch (error) {
             console.log(error);
             NormalSnackBar("Something wents wrong.")
@@ -60,6 +65,15 @@ const useScreenHooks = (props) => {
 
     const onImageAdded = () => {
         NormalSnackBar("Image Uploaded.");
+    }
+
+    const fetchPhotos = async () => {
+        try {
+            const res = await getRestaurantPhotosAPI(restId);
+            res?.data && res?.data?.data && dispatch(setPhotosDataInRedux([0, ...res?.data?.data?.images]));
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     return {

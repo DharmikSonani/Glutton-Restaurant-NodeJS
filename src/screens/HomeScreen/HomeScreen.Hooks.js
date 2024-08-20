@@ -11,7 +11,7 @@ import { setMenuDataInRedux } from '../../redux/MenuData/MenuDataAction';
 import { setRestDataInRedux } from '../../redux/RestaurantData/RestDataAction';
 import { setPhotosDataInRedux } from '../../redux/PhotosData/PhotosDataAction';
 import { setBookingDataInRedux } from '../../redux/BookingData/BookingDataAction';
-import { getRestaurantbyUIDAPI } from '../../api/utils';
+import { getRestaurantbyUIDAPI, getRestaurantPhotosAPI } from '../../api/utils';
 
 const useScreenHooks = (props) => {
 
@@ -214,23 +214,10 @@ const useScreenHooks = (props) => {
         }
     }
 
-    const fetchPhotos = () => {
+    const fetchPhotos = async () => {
         try {
-            RestaurantDBPath
-                .doc(restId)
-                .collection('Images')
-                .orderBy(RestaurantDBFields.Images.addedAt, 'desc')
-                .onSnapshot((querySnap) => {
-                    const list = [];
-                    list.push({ id: 0, imgId: '', imgUrl: '' });
-                    querySnap.docs.map((doc, i) => {
-                        const imgId = doc.id;
-                        const id = i + 1;
-                        const { imgUrl } = doc.data();
-                        list.push({ id, imgUrl, imgId });
-                    })
-                    dispatch(setPhotosDataInRedux(list));
-                })
+            const res = await getRestaurantPhotosAPI(restId);
+            res?.data && res?.data?.data && dispatch(setPhotosDataInRedux([0, ...res?.data?.data?.images]));
         } catch (e) {
             console.log(e);
         }

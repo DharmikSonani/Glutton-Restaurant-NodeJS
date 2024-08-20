@@ -39,7 +39,7 @@ const AddPhotosScreen = (props) => {
                     />
                 }
                 numColumns={2}
-                keyExtractor={item => item.id}
+                keyExtractor={item => item}
                 style={styles.Container}
                 contentContainerStyle={styles.ContentContainer}
                 showsVerticalScrollIndicator={false}

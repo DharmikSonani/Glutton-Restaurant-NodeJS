@@ -12,6 +12,8 @@ const CHECK_USER_URL = `${USER_BASE_URL}/check`;
 
 const RESTAURANT_BASE_URL = `${BASE_URL}/restaurant`;
 const GET_PHOTOS_URL = `${RESTAURANT_BASE_URL}/photo`;
+const ADD_PHOTO_URL = `${GET_PHOTOS_URL}/add`;
+const REMOVE_PHOTO_URL = `${GET_PHOTOS_URL}/remove`;
 const RESTAURANT_REGISTER_URL = `${RESTAURANT_BASE_URL}/register`;
 const RESTAURANT_MOBILE_CHECK_URL = `${RESTAURANT_BASE_URL}/check-mobile`;
 const PACKAGE_ACTIVATION_URL = `${RESTAURANT_BASE_URL}/package-activation`;
@@ -51,6 +53,7 @@ export const checkMobileNoOfRestaurantAPI = async (params) => {
     return res;
 }
 
+
 // PATCH
 export const packageActivationAPI = async (uid, params) => {
     const res = await axios.patch(`${PACKAGE_ACTIVATION_URL}/${uid}`, params);
@@ -59,5 +62,16 @@ export const packageActivationAPI = async (uid, params) => {
 
 export const updateRestaurantAPI = async (uid, params) => {
     const res = await axios.patch(`${RESTAURANT_UPDATE_URL}/${uid}`, params);
+    return res;
+}
+
+export const addPhotoAPI = async (uid, params) => {
+    const res = await axios.patch(`${ADD_PHOTO_URL}/${uid}`, params);
+    return res;
+}
+
+// DELETE
+export const removePhotoAPI = async (uid, params) => {
+    const res = await axios.delete(`${REMOVE_PHOTO_URL}/${uid}`, { data: params });
     return res;
 }

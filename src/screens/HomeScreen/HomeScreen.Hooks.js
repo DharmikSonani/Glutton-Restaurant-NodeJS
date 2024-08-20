@@ -3,7 +3,7 @@ import { NavigationScreens, Reducers } from '../../constants/Strings';
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import moment from 'moment';
-import { BookingsDBPath, InvoiceDBFields, InvoiceDBPath, RatingDBFields, RatingDBPath, RestaurantDBFields, RestaurantDBPath } from '../../constants/Database';
+import { InvoiceDBFields, InvoiceDBPath, RatingDBFields, RatingDBPath, RestaurantDBPath } from '../../constants/Database';
 import { NormalSnackBar } from '../../constants/SnackBars';
 import { setReviewDataInRedux } from '../../redux/ReviewData/ReviewDataAction';
 import { setCategoryDataInRedux } from '../../redux/CategoryData/CategoryDataAction';
@@ -11,7 +11,8 @@ import { setMenuDataInRedux } from '../../redux/MenuData/MenuDataAction';
 import { setRestDataInRedux } from '../../redux/RestaurantData/RestDataAction';
 import { setPhotosDataInRedux } from '../../redux/PhotosData/PhotosDataAction';
 import { setBookingDataInRedux } from '../../redux/BookingData/BookingDataAction';
-import { getAllBookingsAPI, getRestaurantbyUIDAPI, getRestaurantPhotosAPI } from '../../api/utils';
+import { getAllBookingsAPI, getRestaurantbyUIDAPI, getRestaurantPhotosAPI, getTodayBookingsAPI } from '../../api/utils';
+import socketServices from '../../api/Socket';
 
 const useScreenHooks = (props) => {
 
@@ -40,7 +41,25 @@ const useScreenHooks = (props) => {
         fetchAllBookings();
         Object.keys(restData).length === 0 && fetchRestData(restId);
         restData?.isActive == false && NormalSnackBar('Please Active New Package.');
+
+        socketServices.on("NewBookingForToday", getBookings);
+        socketServices.on("NewBookingForRestaurant", fetchAllBookings);
+        socketServices.on("CancelBookingForToday", getBookings);
+        socketServices.on("CancelBookingForRestaurant", fetchAllBookings);
+        socketServices.on("VerifyBookingForToday", getBookings);
+        socketServices.on("VerifyBookingForRestaurant", fetchAllBookings);
+
+        return () => {
+            socketServices.removeListener('NewBookingForToday');
+            socketServices.removeListener('NewBookingForRestaurant');
+            socketServices.removeListener('CancelBookingForToday');
+            socketServices.removeListener('CancelBookingForRestaurant');
+            socketServices.removeListener('VerifyBookingForToday');
+            socketServices.removeListener('VerifyBookingForRestaurant');
+        }
     }, []);
+
+    useEffect(() => { restId && socketServices.emit('JoinSocket', restId); }, [restId])
 
     // Methods
     const fetchRestData = async (uid) => {
@@ -55,40 +74,15 @@ const useScreenHooks = (props) => {
     const getBookings = async () => {
         setLoading(true);
         try {
-            // BookingsDBPath
-            //     .where(BookingsDBFields.date, '==', today)
-            //     .where(BookingsDBFields.restId, '==', restId)
-            //     .orderBy(BookingsDBFields.time, 'desc')
-            //     .onSnapshot((querySnap) => {
-            //         const list = querySnap.docs.map((doc, i) => {
-            //             const docId = doc.id;
-            //             const { custContactNo, custName, date, isCancel, isVerify, noOfGuest, time, discount, custId, } = doc.data();
-            //             let status = '';
-            //             if (isVerify == 'true') {
-            //                 status = 'Verified';
-            //             } else if (isCancel == 'true') {
-            //                 status = 'Cancelled';
-            //             } else if (isVerify == 'false' && isCancel == 'false') {
-            //                 status = 'Pending';
-            //             }
-            //             return ({ docId, custContactNo, custName, date, isCancel, isVerify, noOfGuest, time, status, discount, custId, });
-            //         })
-            //         setBookings(list);
-            //         setLoading(false);
-            //     })
-        } catch (e) {
-            console.log(e);
-            setLoading(false);
-        }
-    }
-
-    const cancelBooking = (id) => {
-        try {
-            BookingsDBPath
-                .doc(id)
-                .update({
-                    isCancel: 'true',
-                })
+            try {
+                const res = await getTodayBookingsAPI(restId, { date: today });
+                if (res?.data && res?.data?.data) {
+                    setBookings(res?.data?.data);
+                }
+                setLoading(false);
+            } catch (e) {
+                console.log(e);
+            }
         } catch (e) {
             console.log(e);
             setLoading(false);
@@ -238,13 +232,12 @@ const useScreenHooks = (props) => {
         today,
         currentTime,
 
-        selectedBooking, setSelectedBooking,
-        bookings, setBookings,
+        selectedBooking,
+        bookings,
         isQRScannerModalVisible, setIsQRScannerModalVisible,
         isTableModelVisible, setIsTableModelVisible,
-        loading, setLoading,
+        loading,
 
-        cancelBooking,
         goToNextScreen,
     };
 }

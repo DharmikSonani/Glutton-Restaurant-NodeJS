@@ -16,16 +16,13 @@ const HomeScreen = (props) => {
     const {
         navigation,
         restData,
-        today,
-        currentTime,
 
-        selectedBooking, setSelectedBooking,
-        bookings, setBookings,
+        selectedBooking,
+        bookings,
         isQRScannerModalVisible, setIsQRScannerModalVisible,
         isTableModelVisible, setIsTableModelVisible,
-        loading, setLoading,
+        loading,
 
-        cancelBooking,
         goToNextScreen,
 
     } = useScreenHooks(props);
@@ -75,12 +72,9 @@ const HomeScreen = (props) => {
                     <BookingCardForHome
                         data={item}
                         onPress={goToNextScreen}
-                        cancelBooking={cancelBooking}
-                        today={today}
-                        currentTime={currentTime}
                     />
                 }
-                keyExtractor={item => item.docId}
+                keyExtractor={item => item._id}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.Container}
                 ListHeaderComponent={HeaderComponent}

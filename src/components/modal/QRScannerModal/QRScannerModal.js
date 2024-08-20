@@ -2,12 +2,13 @@ import { StyleSheet, Text, View, Dimensions, Animated } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import { ActivityIndicator } from 'react-native';
-import auth from '@react-native-firebase/auth';
 import { format } from 'date-fns';
-import moment from 'moment';
 import { COLOR } from '../../../constants/Colors';
 import { NormalSnackBar } from '../../../constants/SnackBars';
-import { BookingsDBPath, InvoiceDBFields, InvoiceDBPath } from '../../../constants/Database';
+import { useSelector } from 'react-redux';
+import { Reducers } from '../../../constants/Strings';
+import { verifyBookingAPI } from '../../../api/utils';
+import socketServices from '../../../api/Socket';
 
 const { width } = Dimensions.get('window');
 
@@ -18,6 +19,7 @@ const QRScannerModal = () => {
     const animation = useRef(new Animated.Value(0)).current;
     const animationDuration = 1500;
     const [animationType, setAnimationType] = useState(1);
+    const restId = useSelector(state => state[Reducers.AuthReducer]);
 
     useEffect(() => {
         const id = setTimeout(() => {
@@ -31,71 +33,21 @@ const QRScannerModal = () => {
         }).start();
     }, [animationType])
 
-    const onSuccess = (id) => {
+    const onSuccess = async (id) => {
         setVerifying(true);
         try {
-            BookingsDBPath
-                .doc(id)
-                .get()
-                .then((querySnap) => {
-                    const { date, isCancel, isVerify, restId, time, custName, custId, custContactNo, discount } = querySnap.data();
-
-                    const currentTime = moment(new Date()).format('HH:mm').toString();
-
-                    let timeFormat = moment(time, 'HH:mm');
-
-                    timeFormat.subtract(30, 'minutes');
-
-                    if (isVerify == 'true') {
-                        NormalSnackBar('Booking already verified.');
-                    } else if (isCancel == 'true') {
-                        NormalSnackBar('Booking cancelled.');
-                    } else if (restId != auth().currentUser.uid.toString()) {
-                        NormalSnackBar('This booking is not for our restaurant.');
-                    } else if (new Date(date) > new Date(currentDate)) {
-                        NormalSnackBar('This booking is not for today.');
-                    } else if (moment(timeFormat).format('HH:mm') > moment(currentTime, ['HH:mm']).format('HH:mm')) {
-                        NormalSnackBar('You are too early from your booking time.');
-                    } else if (moment(time, ['HH:mm']).format('HH:mm') < moment(currentTime, ['HH:mm']).format('HH:mm')) {
-                        NormalSnackBar('You are late, your booking has been cancelled.');
-                    } else {
-                        try {
-                            BookingsDBPath
-                                .doc(id)
-                                .update({
-                                    isVerify: 'true',
-                                })
-                                .then(() => {
-                                    NormalSnackBar('Booking verified successfully.')
-                                    setVerifying(false);
-                                    try {
-                                        let data = {};
-
-                                        data[InvoiceDBFields.invoiceId] = id;
-                                        data[InvoiceDBFields.date] = date;
-                                        data[InvoiceDBFields.time] = time;
-                                        data[InvoiceDBFields.custName] = custName;
-                                        data[InvoiceDBFields.discount] = discount;
-                                        data[InvoiceDBFields.custContactNo] = custContactNo;
-                                        data[InvoiceDBFields.restId] = restId;
-                                        data[InvoiceDBFields.custId] = custId;
-                                        data[InvoiceDBFields.isComplete] = 'false';
-                                        data[InvoiceDBFields.generatedAt] = '';
-                                        data[InvoiceDBFields.tableNo] = '';
-
-                                        InvoiceDBPath.doc(id).set(data)
-                                    } catch (e) {
-                                        setVerifying(false);
-                                        console.log(e);
-                                    }
-                                })
-                        } catch (e) {
-                            console.log(e);
-                            setVerifying(false);
-                        }
-                    }
-                    setVerifying(false);
-                }).catch((e) => { setVerifying(false) })
+            const res = await verifyBookingAPI(id, { restId: restId });
+            if (res?.data) {
+                if (res?.data?.data) {
+                    socketServices.emit('VerifiyBooking', res?.data?.data)
+                    NormalSnackBar('Booking verified successfully.');
+                } else {
+                    NormalSnackBar(res?.data?.message);
+                }
+            } else {
+                NormalSnackBar('Something wents wrong.');
+            }
+            setVerifying(false);
         } catch (e) {
             console.log(e);
             setVerifying(false);

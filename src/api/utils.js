@@ -28,6 +28,7 @@ const RESTAURANT_UPDATE_URL = `${RESTAURANT_BASE_URL}/update`;
 const RATING_BASE_URL = `${BASE_URL}/rating`;
 
 const BOOKING_BASE_URL = `${BASE_URL}/booking`;
+const VERIFY_BOOKING_URL = `${BOOKING_BASE_URL}/verify`;
 const GET_ALL_BOOKINGS_URL = `${BOOKING_BASE_URL}/restaurant`;
 
 // GET
@@ -51,11 +52,6 @@ export const getRestaurantPhotosAPI = async (id) => {
     return res;
 }
 
-export const getAllBookingsAPI = async (id) => {
-    const res = await axios.get(`${GET_ALL_BOOKINGS_URL}/${id}`);
-    return res;
-}
-
 // POST
 export const registerRestaurantAPI = async (params) => {
     const res = await axios.post(`${RESTAURANT_REGISTER_URL}`, params);
@@ -64,6 +60,16 @@ export const registerRestaurantAPI = async (params) => {
 
 export const checkMobileNoOfRestaurantAPI = async (params) => {
     const res = await axios.post(`${RESTAURANT_MOBILE_CHECK_URL}`, params);
+    return res;
+}
+
+export const getTodayBookingsAPI = async (id, params) => {
+    const res = await axios.post(`${GET_ALL_BOOKINGS_URL}/${id}`, params);
+    return res;
+}
+
+export const getAllBookingsAPI = async (id) => {
+    const res = await axios.post(`${GET_ALL_BOOKINGS_URL}/${id}`);
     return res;
 }
 
@@ -76,6 +82,11 @@ export const packageActivationAPI = async (uid, params) => {
 
 export const updateRestaurantAPI = async (uid, params) => {
     const res = await axios.patch(`${RESTAURANT_UPDATE_URL}/${uid}`, params);
+    return res;
+}
+
+export const verifyBookingAPI = async (id, params) => {
+    const res = await axios.patch(`${VERIFY_BOOKING_URL}/${id}`, params);
     return res;
 }
 

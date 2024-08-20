@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { memo, useEffect } from 'react'
+import React, { memo } from 'react'
 import moment from 'moment'
 import LinearGradient from 'react-native-linear-gradient'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -9,27 +9,17 @@ import { bookingStatus } from '../constants/Helper';
 const BookingCardForHome = ({
     data,
     onPress,
-    cancelBooking,
-    today,
-    currentTime,
 }) => {
 
     const status = bookingStatus[data.status];
 
-    useEffect(() => {
-        data.isVerify == 'false'
-            && today == data.date
-            && moment(currentTime, ['HH:mm']).format('HH:mm') > moment(data.time, ['HH:mm']).format('HH:mm')
-            && cancelBooking(data.docId)
-    }, [])
-
     return (
         <View style={styles.Container}>
 
-            <Text style={[styles.TextStyle, { fontSize: 13 }]} numberOfLines={1}>{data.custName}</Text>
-            <Text style={styles.IdText} numberOfLines={1}>ID : {data.docId}</Text>
-            <Text style={styles.TextStyle} numberOfLines={1}>Booking Time : {moment(data.time, ['hh:mm']).format('hh:mm A')}</Text>
-            <Text style={styles.TextStyle} numberOfLines={1}>Guest : {data.noOfGuest}</Text>
+            <Text style={[styles.TextStyle, { fontSize: 13 }]} numberOfLines={1}>{data?.customer?.name}</Text>
+            <Text style={styles.IdText} numberOfLines={1}>ID : {data?._id}</Text>
+            <Text style={styles.TextStyle} numberOfLines={1}>Booking Time : {moment(data?.booking?.time, ['hh:mm']).format('hh:mm A')}</Text>
+            <Text style={styles.TextStyle} numberOfLines={1}>Guest : {data?.booking?.noOfGuest}</Text>
 
             {
                 data.status == 'Verified' &&

@@ -4,12 +4,12 @@ import { ItemTableFieldWidth } from '../../constants/Helper'
 import { COLOR } from '../../constants/Colors'
 
 const ItemTableRow = ({
-    index,
+    sr = 0,
     data,
 }) => {
     return (
-        <View style={[styles.Container, index % 2 == 0 && { backgroundColor: COLOR.BORDERCOLOR }]}>
-            <Text style={[styles.TextStyle, { width: ItemTableFieldWidth[0] }]}>{index}</Text>
+        <View style={[styles.Container, parseInt(sr) % 2 == 0 && { backgroundColor: COLOR.BORDERCOLOR }]}>
+            <Text style={[styles.TextStyle, { width: ItemTableFieldWidth[0] }]}>{sr}</Text>
             <Text style={[styles.TextStyle, { width: ItemTableFieldWidth[1], textAlign: 'left' }]}>{data.name}</Text>
             <Text style={[styles.TextStyle, { width: ItemTableFieldWidth[2] }, styles.TextRightAlign]}>₹ {data.price}</Text>
             <Text style={[styles.TextStyle, { width: ItemTableFieldWidth[3] }]}>{data.qty}</Text>

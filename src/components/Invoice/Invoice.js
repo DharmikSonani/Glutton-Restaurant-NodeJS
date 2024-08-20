@@ -1,6 +1,5 @@
-import { StyleSheet, Text, View, ImageBackground } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import { RestaurantDBFields } from '../../constants/Database'
 import { format } from 'date-fns';
 import moment from 'moment';
 import { InvoiceHeaderImage } from '../../constants/Assets';
@@ -11,13 +10,14 @@ import ItemTableRow from './ItemTableRow';
 
 const Invoice = ({
     invoiceId,
-    details,
     restData,
     items,
+    bookingData,
+    custData,
     total,
 }) => {
 
-    const restName = restData[RestaurantDBFields.restaurantName];
+    const restName = restData?.name;
 
     return (
         <View style={styles.Container}>
@@ -32,14 +32,14 @@ const Invoice = ({
 
                 <View style={styles.RestDataContainer}>
                     <Text style={styles.RestNameTextStyle} numberOfLines={1}>{restName}</Text>
-                    {details.date && <Text style={styles.DateTimeTextStyle}>Date : {format(new Date(details.date), 'dd MMMM, yyyy')}</Text>}
-                    {details.time && <Text style={styles.DateTimeTextStyle}>Time : {moment(details.time, ['hh:mm']).format('hh:mm A')}</Text>}
+                    {bookingData?.date && <Text style={styles.DateTimeTextStyle}>Date : {format(new Date(bookingData.date), 'dd MMMM, yyyy')}</Text>}
+                    {bookingData?.time && <Text style={styles.DateTimeTextStyle}>Time : {moment(bookingData.time, ['hh:mm']).format('hh:mm A')}</Text>}
                 </View>
 
                 <View style={styles.CustDataContainer}>
                     <Text style={styles.CustDataText}>
                         Invoice to :
-                        <Text style={styles.CustDataValues}>{`    ${details.custName}\n +91 ${details.custContactNo}`}</Text>
+                        <Text style={styles.CustDataValues}>{`    ${custData?.name}\n +91 ${custData?.contact}`}</Text>
                     </Text>
                     <Text style={styles.CustDataText}>
                         ID :
@@ -47,7 +47,7 @@ const Invoice = ({
                     </Text>
                     <Text style={styles.CustDataText}>
                         Table No :
-                        <Text style={styles.CustDataValues}>{` ${details.tableNo}`}</Text>
+                        <Text style={styles.CustDataValues}>{` ${restData?.tableNo}`}</Text>
                     </Text>
                 </View>
 
@@ -64,7 +64,7 @@ const Invoice = ({
                     <Text style={[styles.TableFieldHeaderText, { width: ItemTableFieldWidth[4] }]}>Total</Text>
                 </View>
 
-                {items.map((item, i) => <ItemTableRow data={item} key={i} />)}
+                {items.map((item, i) => <ItemTableRow sr={i + 1} data={item} key={i} />)}
 
             </View>
 
@@ -77,21 +77,21 @@ const Invoice = ({
                 </View>
 
                 <View style={[styles.TotalContainer, { marginTop: 5, }]}>
-                    <Text style={styles.TotalText}>Discount {details.discount}% : </Text>
+                    <Text style={styles.TotalText}>Discount {bookingData?.discount}% : </Text>
                     <Text style={[styles.TotalText, styles.TotalValue]}>
-                        ₹ {parseFloat((total / 100) * details.discount).toFixed(2).toString()}
+                        ₹ {parseFloat((total / 100) * bookingData?.discount).toFixed(2).toString()}
                     </Text>
                 </View>
 
                 <View style={[styles.TotalContainer, styles.FinalAmountContainer]}>
                     <Text style={styles.FinalAmountText}>Final Amount : </Text>
                     <Text style={[styles.FinalAmountText, styles.TotalValue]}>
-                        ₹ {parseFloat((total) - ((total / 100) * details.discount)).toFixed(2).toString()}
+                        ₹ {parseFloat((total) - ((total / 100) * bookingData?.discount)).toFixed(2).toString()}
                     </Text>
                 </View>
             </View>
 
-            <Text style={styles.FooterText} numberOfLines={2}>Contact : +91 {restData.contactNo} | {restData.email}</Text>
+            <Text style={styles.FooterText} numberOfLines={2}>Contact : +91 {restData?.contact} | {restData?.email}</Text>
 
         </View>
     )

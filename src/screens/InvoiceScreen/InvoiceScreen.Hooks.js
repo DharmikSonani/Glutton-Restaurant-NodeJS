@@ -1,19 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Reducers } from '../../constants/Strings';
-import { useSelector } from 'react-redux';
-import { InvoiceDBFields, InvoiceDBPath } from '../../constants/Database';
+import { getInvoiceByIDAPI } from '../../api/utils';
 
 const useScreenHooks = (props) => {
 
     // Variables
     const navigation = props.navigation;
     const invoiceId = props.route.params.invoiceId;
-    const restData = useSelector(state => state[Reducers.RestDataReducer]);
 
     // UseStates
-    const [details, setDetails] = useState([]);
-    const [items, setItems] = useState([]);
-    const [total, setTotal] = useState(0);
+    const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
 
     // UseEffects
@@ -22,34 +17,21 @@ const useScreenHooks = (props) => {
     }, [navigation]);
 
     // Methods
-    const fetchData = () => {
-        setLoading(true);
+    const fetchData = async () => {
         try {
-            InvoiceDBPath
-                .doc(invoiceId)
-                .get()
-                .then((querySnap) => {
-                    setDetails(querySnap.data());
-                })
-
-            InvoiceDBPath
-                .doc(invoiceId)
-                .collection("Items")
-                .orderBy(InvoiceDBFields.Items.addedAt, 'asc')
-                .get()
-                .then((querySnap) => {
-                    let tot = 0;
-                    list = querySnap.docs.map((doc, i) => {
-                        itemNo = i + 1;
-                        const { itemName, itemPrice, qty, total } = doc.data();
-                        tot = tot + total;
-                        return ({ itemName, itemPrice, qty, total, itemNo });
-                    })
-                    setItems(list);
-                    setTotal(tot);
+            setLoading(true);
+            try {
+                const res = await getInvoiceByIDAPI(invoiceId);
+                if (res && res?.data && res?.data?.data) {
+                    setData(res?.data?.data);
                     setLoading(false);
-                })
-
+                } else {
+                    setLoading(false);
+                }
+            } catch (e) {
+                setLoading(false);
+                console.log(e);
+            }
         } catch (e) {
             setLoading(false);
             console.log(e);
@@ -59,11 +41,8 @@ const useScreenHooks = (props) => {
     return {
         navigation,
         invoiceId,
-        restData,
 
-        details,
-        items,
-        total,
+        data,
         loading,
     };
 }

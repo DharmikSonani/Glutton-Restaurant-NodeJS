@@ -16,11 +16,8 @@ const InvoiceScreen = (props) => {
     const {
         navigation,
         invoiceId,
-        restData,
 
-        details,
-        items,
-        total,
+        data,
         loading,
     } = useScreenHooks(props);
 
@@ -35,24 +32,20 @@ const InvoiceScreen = (props) => {
                         <ActivityIndicator color={COLOR.BLACK} />
                     </View>
                     :
-                    details ?
-                        details.isComplete == 'true' ?
-                            <ScrollView
-                                contentContainerStyle={styles.ContentContainer}
-                                showsVerticalScrollIndicator={false}
-                            >
-                                <Invoice
-                                    invoiceId={invoiceId}
-                                    details={details}
-                                    items={items}
-                                    restData={restData}
-                                    total={total}
-                                />
-                            </ScrollView>
-                            :
-                            <View style={styles.Container}>
-                                <Text style={styles.EmptyText}>Invoice Not Generated.</Text>
-                            </View>
+                    data?.isGenerated == true ?
+                        <ScrollView
+                            contentContainerStyle={styles.ContentContainer}
+                            showsVerticalScrollIndicator={false}
+                        >
+                            <Invoice
+                                invoiceId={invoiceId}
+                                items={data?.items}
+                                restData={data?.restaurant}
+                                bookingData={data?.booking}
+                                custData={data?.customer}
+                                total={data?.total}
+                            />
+                        </ScrollView>
                         :
                         <View style={styles.Container}>
                             <Text style={styles.EmptyText}>Invoice Not Found.</Text>

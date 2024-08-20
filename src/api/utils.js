@@ -31,6 +31,11 @@ const BOOKING_BASE_URL = `${BASE_URL}/booking`;
 const VERIFY_BOOKING_URL = `${BOOKING_BASE_URL}/verify`;
 const GET_ALL_BOOKINGS_URL = `${BOOKING_BASE_URL}/restaurant`;
 
+const INVOICE_BASE_URL = `${BASE_URL}/invoice`;
+const TEMP_INVOICE_URL = `${INVOICE_BASE_URL}/temp`;
+const TABLE_ALLOCATE_URL = `${INVOICE_BASE_URL}/table-allocate`;
+const GENERATE_INVOICE_URL = `${INVOICE_BASE_URL}/generate`;
+
 // GET
 export const checkUserByUIDAPI = async (uid) => {
     const res = await axios.get(`${CHECK_USER_URL}/${uid}`);
@@ -49,6 +54,16 @@ export const getRestaurantReviewsAPI = async (id) => {
 
 export const getRestaurantPhotosAPI = async (id) => {
     const res = await axios.get(`${GET_PHOTOS_URL}/${id}`);
+    return res;
+}
+
+export const getTempInvoiceAPI = async (id) => {
+    const res = await axios.get(`${TEMP_INVOICE_URL}/${id}`);
+    return res;
+}
+
+export const getInvoiceByIDAPI = async (id) => {
+    const res = await axios.get(`${INVOICE_BASE_URL}/${id}`);
     return res;
 }
 
@@ -92,6 +107,16 @@ export const verifyBookingAPI = async (id, params) => {
 
 export const addPhotoAPI = async (uid, params) => {
     const res = await axios.patch(`${ADD_PHOTO_URL}/${uid}`, params);
+    return res;
+}
+
+export const tableAllocationAPI = async (id, params) => {
+    const res = await axios.patch(`${TABLE_ALLOCATE_URL}/${id}`, params);
+    return res;
+}
+
+export const generateInvoiceAPI = async (id) => {
+    const res = await axios.patch(`${GENERATE_INVOICE_URL}/${id}`);
     return res;
 }
 

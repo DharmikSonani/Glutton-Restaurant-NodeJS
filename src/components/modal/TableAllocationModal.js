@@ -3,10 +3,10 @@ import React, { useState } from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { COLOR, GRADIENTCOLOR } from '../../constants/Colors';
 import { NormalSnackBar } from '../../constants/SnackBars';
-import { InvoiceDBFields, InvoiceDBPath } from '../../constants/Database';
 import { NavigationScreens, keyboardType } from '../../constants/Strings';
 import DataDisplayCard from '../DataDisplayCard';
 import CustomButton from '../button/CustomButton';
+import { tableAllocationAPI } from '../../api/utils';
 
 const TableAllocationModal = ({
     data,
@@ -17,42 +17,44 @@ const TableAllocationModal = ({
 
     const [table, setTable] = useState('');
     const [allocating, setAllocating] = useState(false);
+    const invoiceId = data?._id;
+    const customer = data?.customer;
 
-    let custData = [
+    const custData = [
         {
             field: 'Name',
-            value: data[InvoiceDBFields.custName],
+            value: customer?.name,
         },
     ]
 
-    data[InvoiceDBFields.custContactNo] && custData.push({
+    customer?.contact && custData.push({
         field: 'Contact No.',
-        value: `+91 ${data[InvoiceDBFields.custContactNo]}`,
+        value: `+91 ${customer?.contact}`,
     });
 
-    const onAllocatePress = () => {
+    const onAllocatePress = async () => {
         if (table == '') {
             NormalSnackBar('Enter Table Number.');
         } else {
-            setAllocating(true);
             try {
-                InvoiceDBPath
-                    .doc(data.docId)
-                    .update({
-                        tableNo: table,
-                    }).then(() => {
-                        setModalVisible(false);
-                        navigation.navigate(NavigationScreens.ItemAddToBillScreen, {
-                            invoiceId: data.docId,
-                            dis: data.discount,
-                            tableNo: table,
-                        });
-                        setTable('');
-                        setAllocating(false);
-                    })
+                setAllocating(true);
+                const res = await tableAllocationAPI(invoiceId, { tableNo: table });
+                if (res?.data && res?.data?.data) {
+                    setModalVisible(false);
+                    navigation.navigate(NavigationScreens.ItemAddToBillScreen, {
+                        invoiceId: invoiceId,
+                        dis: data?.booking?.discount,
+                        tableNo: data?.restaurant?.tableNo,
+                    });
+                    setTable('');
+                } else {
+                    NormalSnackBar('Something wents wrong.');
+                }
+                setAllocating(false);
             } catch (e) {
                 console.log(e);
                 setAllocating(false);
+                NormalSnackBar('Something wents wrong.');
             }
         }
     }
@@ -79,6 +81,7 @@ const TableAllocationModal = ({
                             keyboardType={keyboardType.default}
                             value={table}
                             onChangeText={setTable}
+                            maxLength={5}
                         />
                     </DataDisplayCard>
 

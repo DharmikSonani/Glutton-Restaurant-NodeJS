@@ -3,7 +3,7 @@ import { NavigationScreens, Reducers } from '../../constants/Strings';
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import moment from 'moment';
-import { InvoiceDBFields, InvoiceDBPath, RestaurantDBPath } from '../../constants/Database';
+import { RestaurantDBPath } from '../../constants/Database';
 import { NormalSnackBar } from '../../constants/SnackBars';
 import { setReviewDataInRedux } from '../../redux/ReviewData/ReviewDataAction';
 import { setCategoryDataInRedux } from '../../redux/CategoryData/CategoryDataAction';
@@ -11,7 +11,14 @@ import { setMenuDataInRedux } from '../../redux/MenuData/MenuDataAction';
 import { setRestDataInRedux } from '../../redux/RestaurantData/RestDataAction';
 import { setPhotosDataInRedux } from '../../redux/PhotosData/PhotosDataAction';
 import { setBookingDataInRedux } from '../../redux/BookingData/BookingDataAction';
-import { getAllBookingsAPI, getRestaurantbyUIDAPI, getRestaurantPhotosAPI, getRestaurantReviewsAPI, getTodayBookingsAPI } from '../../api/utils';
+import {
+    getAllBookingsAPI,
+    getRestaurantbyUIDAPI,
+    getRestaurantPhotosAPI,
+    getRestaurantReviewsAPI,
+    getTempInvoiceAPI,
+    getTodayBookingsAPI,
+} from '../../api/utils';
 import socketServices from '../../api/Socket';
 
 const useScreenHooks = (props) => {
@@ -94,63 +101,34 @@ const useScreenHooks = (props) => {
         }
     }
 
-    const goToNextScreen = (item) => {
+    const goToNextScreen = async (data) => {
         try {
-            InvoiceDBPath
-                .doc(item.docId)
-                .get()
-                .then((querySnap) => {
-                    if (querySnap.exists) {
-                        const { isComplete, tableNo } = querySnap.data();
-                        if (tableNo == '') {
-                            setSelectedBooking(item);
-                            setIsTableModelVisible(true);
-                        } else {
-                            if (isComplete == 'true') {
-                                navigation.navigate(NavigationScreens.InvoiceScreen, {
-                                    invoiceId: item.docId,
-                                });
-                            } else {
-                                navigation.navigate(NavigationScreens.ItemAddToBillScreen, {
-                                    invoiceId: item.docId,
-                                    dis: item.discount,
-                                    tableNo: tableNo,
-                                });
-                            }
-                        }
+            const invoiceId = data._id;
+
+            const invoice = await getTempInvoiceAPI(invoiceId);
+
+            if (invoice?.data && invoice?.data?.data) {
+                const invoiceData = invoice?.data?.data;
+                if (invoiceData?.restaurant?.tableNo) {
+                    if (invoiceData?.isGenerated) {
+                        navigation.navigate(NavigationScreens.InvoiceScreen, { invoiceId: invoiceId, });
+                    } else {
+                        navigation.navigate(NavigationScreens.ItemAddToBillScreen, {
+                            invoiceId: invoiceId,
+                            dis: invoiceData?.booking?.discount,
+                            tableNo: invoiceData?.restaurant?.tableNo,
+                        });
                     }
-                    else {
-                        try {
-
-                            let data = {};
-
-                            data[InvoiceDBFields.invoiceId] = item.docId;
-                            data[InvoiceDBFields.date] = item.date;
-                            data[InvoiceDBFields.time] = item.time;
-                            data[InvoiceDBFields.custName] = item.custName;
-                            data[InvoiceDBFields.discount] = item.discount;
-                            data[InvoiceDBFields.custContactNo] = item.custContactNo;
-                            data[InvoiceDBFields.restId] = restId;
-                            data[InvoiceDBFields.custId] = item.custId;
-                            data[InvoiceDBFields.isComplete] = 'false';
-                            data[InvoiceDBFields.generatedAt] = '';
-                            data[InvoiceDBFields.tableNo] = '';
-
-                            InvoiceDBPath
-                                .doc(item.docId)
-                                .set(data)
-                                .then(() => {
-                                    setSelectedBooking(item);
-                                    setIsTableModelVisible(true);
-                                })
-
-                        } catch (e) {
-                            console.log(e);
-                        }
-                    }
-                })
+                } else {
+                    setSelectedBooking(data);
+                    setIsTableModelVisible(true);
+                }
+            } else {
+                NormalSnackBar('Something wents wrong.');
+            }
         } catch (e) {
             console.log(e);
+            NormalSnackBar('Something wents wrong.');
         }
     }
 

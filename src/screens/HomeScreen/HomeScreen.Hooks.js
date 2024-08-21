@@ -3,7 +3,6 @@ import { NavigationScreens, Reducers } from '../../constants/Strings';
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import moment from 'moment';
-import { RestaurantDBPath } from '../../constants/Database';
 import { NormalSnackBar } from '../../constants/SnackBars';
 import { setReviewDataInRedux } from '../../redux/ReviewData/ReviewDataAction';
 import { setCategoryDataInRedux } from '../../redux/CategoryData/CategoryDataAction';

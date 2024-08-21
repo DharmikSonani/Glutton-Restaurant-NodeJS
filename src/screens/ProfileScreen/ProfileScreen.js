@@ -9,7 +9,6 @@ import { styles } from './styles';
 import PosterImage from '../../components/PosterImage';
 import DataDisplayCardBlack from '../../components/DataDisplayCardBlack';
 import FieldValuePairLabel from '../../components/labels/FieldValuePairLabel';
-import { RestaurantDBFields } from '../../constants/Database';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 
 const ProfileScreen = (props) => {
@@ -39,19 +38,19 @@ const ProfileScreen = (props) => {
                 <DataDisplayCardBlack title={'Basic Detail'}>
                     <FieldValuePairLabel
                         field={'Restaurant Name'}
-                        value={restData[RestaurantDBFields.restaurantName]}
+                        value={restData['restaurantName']}
                     />
                     <FieldValuePairLabel
                         field={'Owner Name'}
-                        value={restData[RestaurantDBFields.ownerName]}
+                        value={restData['ownerName']}
                     />
                     <FieldValuePairLabel
                         field={'Number of Tables'}
-                        value={restData[RestaurantDBFields.tables]}
+                        value={restData['tables']}
                     />
                     <FieldValuePairLabel
                         field={'Time'}
-                        value={`${restData[RestaurantDBFields.openTime]} to ${restData[RestaurantDBFields.closeTime]}`}
+                        value={`${restData['openTime']} to ${restData['closeTime']}`}
                         style={{ marginBottom: 0 }}
                     />
                 </DataDisplayCardBlack>
@@ -59,11 +58,11 @@ const ProfileScreen = (props) => {
                 <DataDisplayCardBlack title={'Contact Detail'}>
                     <FieldValuePairLabel
                         field={'Email'}
-                        value={restData[RestaurantDBFields.email]}
+                        value={restData['email']}
                     />
                     <FieldValuePairLabel
                         field={'Contact No.'}
-                        value={`+91 ${restData[RestaurantDBFields.contactNo]}`}
+                        value={`+91 ${restData['contactNo']}`}
                         style={{ marginBottom: 0 }}
                     />
                 </DataDisplayCardBlack>
@@ -71,19 +70,19 @@ const ProfileScreen = (props) => {
                 <DataDisplayCardBlack title={'Location Detail'}>
                     <FieldValuePairLabel
                         field={'Address'}
-                        value={restData[RestaurantDBFields.address]}
+                        value={restData['address']}
                     />
                     <FieldValuePairLabel
                         field={'City'}
-                        value={restData[RestaurantDBFields.city]}
+                        value={restData['city']}
                     />
                     <FieldValuePairLabel
                         field={'State'}
-                        value={restData[RestaurantDBFields.state]}
+                        value={restData['state']}
                     />
                     <FieldValuePairLabel
                         field={'Pincode'}
-                        value={restData[RestaurantDBFields.pincode]}
+                        value={restData['pincode']}
                         style={{ marginBottom: 0 }}
                     />
                 </DataDisplayCardBlack>

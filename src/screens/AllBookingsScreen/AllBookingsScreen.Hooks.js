@@ -3,7 +3,6 @@ import { Reducers } from '../../constants/Strings';
 import { useEffect, useState } from 'react';
 import { addDays, format } from 'date-fns';
 import { BookingStatusFilter } from '../../constants/Helper';
-import { RestaurantDBFields } from '../../constants/Database';
 import { getAllBookingsAPI } from '../../api/utils';
 import { setBookingDataInRedux } from '../../redux/BookingData/BookingDataAction';
 
@@ -14,7 +13,7 @@ const useScreenHooks = (props) => {
     const restId = useSelector(state => state[Reducers.AuthReducer]);
     const allBookings = useSelector(state => state[Reducers.BookingDataReducer]);
     const restData = useSelector(state => state[Reducers.RestDataReducer]);
-    const minDate = new Date(restData[RestaurantDBFields.createdAt]);
+    const minDate = new Date(restData['createdAt']);
     const maxDate = new Date(addDays(new Date(), 6));
     const dispatch = useDispatch();
 

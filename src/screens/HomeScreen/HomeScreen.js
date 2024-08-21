@@ -1,7 +1,6 @@
 import React from 'react'
 import useScreenHooks from './HomeScreen.Hooks';
 import ScreenHeader from '../../components/ScreenHeader';
-import { RestaurantDBFields } from '../../constants/Database';
 import QRCodeScannerModal from '../../components/modal/QRScannerModal/QRCodeScannerModal';
 import LinearGradient from 'react-native-linear-gradient';
 import { ActivityIndicator, FlatList, Text, View } from 'react-native';
@@ -61,7 +60,7 @@ const HomeScreen = (props) => {
         <ScreenHeader
             navigation={navigation}
             isDashboard
-            title={restData[RestaurantDBFields.restaurantName]}
+            title={restData['restaurantName']}
             onRightPress={() => { setIsQRScannerModalVisible(true) }}
             rightButtonIcon={<MaterialCommunityIcons name={'qrcode-scan'} size={25} color={COLOR.BLACK} />}
         >

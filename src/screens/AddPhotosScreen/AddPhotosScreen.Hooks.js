@@ -25,7 +25,7 @@ const useScreenHooks = (props) => {
     }, [isFocused])
 
     // Methods
-    const deleteFirestoreData = async (image) => {
+    const deleteData = async (image) => {
         try {
             const res = await removePhotoAPI(restId, { img: image });
             if (res?.data && res?.data?.data) {
@@ -52,7 +52,7 @@ const useScreenHooks = (props) => {
                         NormalSnackBar("Something wents wrong.")
                     })
             }
-            deleteFirestoreData(data);
+            deleteData(data);
         } catch (error) {
             console.log(error);
             NormalSnackBar("Something wents wrong.")

@@ -8,46 +8,38 @@ export const SOCKET_URL = 'https://formally-valid-mite.ngrok-free.app/';
 const BASE_URL = `${DOMAIN}api/`;
 
 const USER_BASE_URL = `${BASE_URL}/user`;
+const RESTAURANT_BASE_URL = `${BASE_URL}/restaurant`;
+const RATING_BASE_URL = `${BASE_URL}/rating`;
+const BOOKING_BASE_URL = `${BASE_URL}/booking`;
+const INVOICE_BASE_URL = `${BASE_URL}/invoice`;
+const INVOICE_ITEM_BASE_URL = `${BASE_URL}/invoice-item`;
+const PACKAGE_BASE_URL = `${BASE_URL}/package`;
+const MENU_ITEM_BASE_URL = `${BASE_URL}/menu-item`;
+const MENU_CATEGORY_BASE_URL = `${BASE_URL}/menu-category`;
 
 const CHECK_USER_URL = `${USER_BASE_URL}/check`;
-
-const RESTAURANT_BASE_URL = `${BASE_URL}/restaurant`;
 
 const GET_PHOTOS_URL = `${RESTAURANT_BASE_URL}/photo`;
 const ADD_PHOTO_URL = `${GET_PHOTOS_URL}/add`;
 const REMOVE_PHOTO_URL = `${GET_PHOTOS_URL}/remove`;
-
 const RESTAURANT_REGISTER_URL = `${RESTAURANT_BASE_URL}/register`;
-
 const RESTAURANT_MOBILE_CHECK_URL = `${RESTAURANT_BASE_URL}/check-mobile`;
-
 const PACKAGE_ACTIVATION_URL = `${RESTAURANT_BASE_URL}/package-activation`;
-
 const RESTAURANT_UPDATE_URL = `${RESTAURANT_BASE_URL}/update`;
 
-const RATING_BASE_URL = `${BASE_URL}/rating`;
-
-const BOOKING_BASE_URL = `${BASE_URL}/booking`;
 const VERIFY_BOOKING_URL = `${BOOKING_BASE_URL}/verify`;
 const GET_ALL_BOOKINGS_URL = `${BOOKING_BASE_URL}/restaurant`;
 
-const INVOICE_BASE_URL = `${BASE_URL}/invoice`;
 const TEMP_INVOICE_URL = `${INVOICE_BASE_URL}/temp`;
 const TABLE_ALLOCATE_URL = `${INVOICE_BASE_URL}/table-allocate`;
 const GENERATE_INVOICE_URL = `${INVOICE_BASE_URL}/generate`;
 
-const INVOICE_ITEM_BASE_URL = `${BASE_URL}/invoice-item`;
 const ADD_INVOICE_ITEM_URL = `${INVOICE_ITEM_BASE_URL}/add`;
 
-const PACKAGE_BASE_URL = `${BASE_URL}/package`;
-
-const MENU_ITEM_BASE_URL = `${BASE_URL}/menu-item`;
 const ADD_MENU_ITEM_URL = `${MENU_ITEM_BASE_URL}/add`;
 const UPDATE_MENU_ITEM_URL = `${MENU_ITEM_BASE_URL}/update`;
 const REMOVE_MENU_ITEM_URL = `${MENU_ITEM_BASE_URL}/remove`;
 const MENU_CATEGORY_URL = `${MENU_ITEM_BASE_URL}/category`;
-
-const MENU_CATEGORY_BASE_URL = `${BASE_URL}/menu-category`;
 
 // GET
 export const checkUserByUIDAPI = async (uid) => {

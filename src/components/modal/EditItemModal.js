@@ -51,7 +51,7 @@ const EditItemModal = ({
 
     const onRemovePress = () => {
         Alert.alert(
-            data.itemName,
+            data.name,
             'Are you sure you want to remove this item?',
             [
                 { text: 'No', onPress: () => { } },

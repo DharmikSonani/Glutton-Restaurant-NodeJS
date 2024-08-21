@@ -5,9 +5,8 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { COLOR, GRADIENTCOLOR } from '../../constants/Colors';
 import { NormalSnackBar } from '../../constants/SnackBars';
 import DataDisplayCard from '../DataDisplayCard';
-import { InvoiceDBPath, RestaurantDBFields } from '../../constants/Database';
-import firestore from '@react-native-firebase/firestore';
 import CustomButton from '../button/CustomButton';
+import { addInvoiceItemAPI } from '../../api/utils';
 
 const AddItemToOrderModal = ({
     data,
@@ -19,57 +18,34 @@ const AddItemToOrderModal = ({
 
     const [qty, setQty] = useState(1);
 
-    let itemDisplayData = [
+    const itemDisplayData = [
         {
             field: 'Category',
-            value: data[RestaurantDBFields.Menu.category],
+            value: data?.category?.name,
         },
         {
             field: 'Price',
-            value: `₹ ${parseFloat(data[RestaurantDBFields.Menu.price]).toFixed(2)}`,
+            value: `₹ ${parseFloat(data?.price).toFixed(2)}`,
         },
     ]
 
-    const onAddToOrderPress = () => {
+    const onAddToOrderPress = async () => {
         try {
-            const total = qty * data.price;
-            const operationPath = InvoiceDBPath
-                .doc(invoiceId)
-                .collection("Items")
-                .doc(data.itemId);
+            const params = {
+                invoiceId: invoiceId,
+                name: data?.name,
+                qty: qty,
+                price: data?.price
+            }
 
-            operationPath
-                .get()
-                .then((querySnap) => {
-                    try {
-                        if (querySnap.exists) {
-                            const db_qty = querySnap.data().qty;
-                            operationPath
-                                .update({
-                                    qty: db_qty + qty,
-                                    total: total + (db_qty * parseInt(data.price)),
-                                }).then(() => {
-                                    onComplete(`${qty} ${data[RestaurantDBFields.Menu.itemName]} Added.`);
-                                    setModalVisible(false);
-                                })
-                        } else {
-                            operationPath
-                                .set({
-                                    itemName: data.itemName,
-                                    itemPrice: parseInt(data.price),
-                                    qty: qty,
-                                    total: total,
-                                    addedAt: firestore.Timestamp.fromDate(new Date()),
-                                }).then(() => {
-                                    onComplete(`${qty} ${data[RestaurantDBFields.Menu.itemName]} Added.`);
-                                    setModalVisible(false);
-                                })
-                        }
-                    } catch (e) {
-                        console.log(e);
-                        NormalSnackBar('Something wents wrong.');
-                    }
-                })
+            const res = await addInvoiceItemAPI(params);
+
+            if (res?.data && res?.data?.data) {
+                onComplete(`${qty?.toString()} ${data?.name} added.`);
+                setModalVisible(false);
+            } else {
+                onComplete("Something wents wrong.");
+            }
         } catch (e) {
             console.log(e);
             NormalSnackBar('Something wents wrong.');
@@ -87,7 +63,7 @@ const AddItemToOrderModal = ({
             <View style={styles.ViewWrapper}>
                 <View style={styles.Container}>
                     <DataDisplayCard
-                        title={data[RestaurantDBFields.Menu.itemName]}
+                        title={data?.name}
                         data={itemDisplayData}
                     >
                         <View style={styles.QuantityContainer}>

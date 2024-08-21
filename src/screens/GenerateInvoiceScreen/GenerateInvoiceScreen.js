@@ -86,7 +86,7 @@ const GenerateInvoiceScreen = (props) => {
             <FlatList
                 data={items}
                 keyExtractor={item => item._id}
-                renderItem={({ item, index }) => <ItemTableRow index={index + 1} data={item} />}
+                renderItem={({ item, index }) => <ItemTableRow sr={index + 1} data={item} />}
                 contentContainerStyle={styles.Container}
                 bounces={false}
                 showsVerticalScrollIndicator={false}

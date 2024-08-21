@@ -20,6 +20,7 @@ const ItemAddToBillScreen = (props) => {
         invoiceId,
         tableNo,
         categories,
+        cardWidth,
 
         data,
         search,
@@ -58,7 +59,7 @@ const ItemAddToBillScreen = (props) => {
 
             <FlatList
                 data={data}
-                keyExtractor={item => item.itemId}
+                keyExtractor={item => item._id}
                 numColumns={2}
                 bounces={false}
                 showsVerticalScrollIndicator={false}
@@ -66,11 +67,11 @@ const ItemAddToBillScreen = (props) => {
                 contentContainerStyle={styles.ContentContainer}
                 renderItem={({ item }) =>
                     <TouchableOpacity
-                        style={styles.ItemCard}
+                        style={[styles.ItemCard, { width: cardWidth }]}
                         onPress={() => { onItemPress(item) }}
                     >
-                        <Text style={styles.ItemNameText} numberOfLines={1}>{item.itemName?.trim()}</Text>
-                        <Text style={styles.ItemCategoryText} numberOfLines={1}>{item.category?.trim()}</Text>
+                        <Text style={styles.ItemNameText} numberOfLines={1}>{item?.name?.trim()}</Text>
+                        <Text style={styles.ItemCategoryText} numberOfLines={1}>{item?.category?.name?.trim()}</Text>
                     </TouchableOpacity>
                 }
                 ListEmptyComponent={

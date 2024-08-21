@@ -8,7 +8,7 @@ const ItemTableRow = ({
     data,
 }) => {
     return (
-        <View style={[styles.Container, parseInt(sr) % 2 == 0 && { backgroundColor: COLOR.BORDERCOLOR }]}>
+        <View style={[styles.Container, sr % 2 == 0 && { backgroundColor: COLOR.BORDERCOLOR }]}>
             <Text style={[styles.TextStyle, { width: ItemTableFieldWidth[0] }]}>{sr}</Text>
             <Text style={[styles.TextStyle, { width: ItemTableFieldWidth[1], textAlign: 'left' }]}>{data.name}</Text>
             <Text style={[styles.TextStyle, { width: ItemTableFieldWidth[2] }, styles.TextRightAlign]}>₹ {data.price}</Text>

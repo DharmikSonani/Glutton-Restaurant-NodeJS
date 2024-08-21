@@ -36,6 +36,9 @@ const TEMP_INVOICE_URL = `${INVOICE_BASE_URL}/temp`;
 const TABLE_ALLOCATE_URL = `${INVOICE_BASE_URL}/table-allocate`;
 const GENERATE_INVOICE_URL = `${INVOICE_BASE_URL}/generate`;
 
+const INVOICE_ITEM_BASE_URL = `${BASE_URL}/invoice-item`;
+const ADD_INVOICE_ITEM_URL = `${INVOICE_ITEM_BASE_URL}/add`;
+
 const PACKAGE_BASE_URL = `${BASE_URL}/package`;
 
 const MENU_ITEM_BASE_URL = `${BASE_URL}/menu-item`;
@@ -120,6 +123,11 @@ export const getAllBookingsAPI = async (id) => {
 
 export const addMenuItemAPI = async (params) => {
     const res = await axios.post(`${ADD_MENU_ITEM_URL}`, params);
+    return res;
+}
+
+export const addInvoiceItemAPI = async (params) => {
+    const res = await axios.post(`${ADD_INVOICE_ITEM_URL}`, params);
     return res;
 }
 

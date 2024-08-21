@@ -2,6 +2,7 @@ import { useSelector } from 'react-redux';
 import { NavigationScreens, Reducers } from '../../constants/Strings';
 import { useEffect, useState } from 'react';
 import { NormalSnackBar } from '../../constants/SnackBars';
+import { Dimensions } from 'react-native';
 
 const useScreenHooks = (props) => {
 
@@ -10,7 +11,7 @@ const useScreenHooks = (props) => {
     const invoiceId = props.route.params.invoiceId;
     const tableNo = props.route.params.tableNo;
     const discount = props.route.params.dis;
-
+    const cardWidth = (Dimensions.get('window').width - 40) / 2;
     const allItemData = useSelector(state => state[Reducers.MenuDataReducer]);
     const categories = useSelector(state => state[Reducers.CategoryDataReducer]);
 
@@ -32,14 +33,14 @@ const useScreenHooks = (props) => {
         if (cat == "All") {
             setData(allItemData);
         } else {
-            setData(allItemData.filter((i) => i?.category?.toLowerCase() == cat.toLowerCase()))
+            setData(allItemData.filter((i) => i?.category?.name?.toLowerCase() == cat.toLowerCase()))
         }
     }
 
     const onSearching = (text) => {
         setSearch(text);
         if (text.length > 0) {
-            setData(allItemData.filter((i) => i.itemName.toLowerCase().includes(text.toLowerCase())))
+            setData(allItemData.filter((i) => i?.name?.toLowerCase().includes(text.toLowerCase())))
         } else {
             setData(allItemData);
         }
@@ -69,6 +70,7 @@ const useScreenHooks = (props) => {
         invoiceId,
         tableNo,
         categories,
+        cardWidth,
 
         data,
         search,

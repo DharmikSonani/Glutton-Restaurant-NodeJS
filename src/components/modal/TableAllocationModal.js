@@ -44,7 +44,7 @@ const TableAllocationModal = ({
                     navigation.navigate(NavigationScreens.ItemAddToBillScreen, {
                         invoiceId: invoiceId,
                         dis: data?.booking?.discount,
-                        tableNo: data?.restaurant?.tableNo,
+                        tableNo: res?.data?.data?.restaurant?.tableNo,
                     });
                     setTable('');
                 } else {

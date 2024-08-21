@@ -13,6 +13,8 @@ import { setPhotosDataInRedux } from '../../redux/PhotosData/PhotosDataAction';
 import { setBookingDataInRedux } from '../../redux/BookingData/BookingDataAction';
 import {
     getAllBookingsAPI,
+    getMenuCategoryByRestIDAPI,
+    getMenuItemsAPI,
     getRestaurantbyUIDAPI,
     getRestaurantPhotosAPI,
     getRestaurantReviewsAPI,
@@ -84,8 +86,8 @@ const useScreenHooks = (props) => {
     }
 
     const getBookings = async () => {
-        setLoading(true);
         try {
+            setLoading(true);
             try {
                 const res = await getTodayBookingsAPI(restId, { date: today });
                 if (res?.data && res?.data?.data) {
@@ -141,42 +143,19 @@ const useScreenHooks = (props) => {
         }
     }
 
-    const fetchCategory = () => {
+    const fetchCategory = async () => {
         try {
-            RestaurantDBPath
-                .doc(restId)
-                .collection('Menu')
-                .orderBy('category', "asc")
-                .onSnapshot((querySnap) => {
-                    let catList = ["All"];
-                    querySnap.docs.map((doc, i) => {
-                        const { category } = doc.data();
-                        if (!catList.some(cat => cat === category)) {
-                            catList.push(category);
-                        }
-                    })
-                    dispatch(setCategoryDataInRedux(catList));
-                })
+            const res = await getMenuCategoryByRestIDAPI(restId);
+            res?.data && res?.data?.data && dispatch(setCategoryDataInRedux(['All', ...res?.data?.data]));
         } catch (e) {
             console.log(e);
         }
     }
 
-    const fetchMenuItems = () => {
+    const fetchMenuItems = async () => {
         try {
-            RestaurantDBPath
-                .doc(restId)
-                .collection('Menu')
-                .orderBy('itemName', 'asc')
-                .onSnapshot((querySnap) => {
-                    const list = querySnap.docs.map((doc, i) => {
-                        const itemId = doc.id;
-                        const no = i + 1;
-                        const { itemName, price, category } = doc.data();
-                        return ({ itemId, itemName, price, category, no })
-                    })
-                    dispatch(setMenuDataInRedux(list));
-                })
+            const res = await getMenuItemsAPI(restId);
+            res?.data && res?.data?.data && dispatch(setMenuDataInRedux(res?.data?.data));
         } catch (e) {
             console.log(e);
         }

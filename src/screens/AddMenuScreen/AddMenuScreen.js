@@ -80,13 +80,14 @@ const AddMenuScreen = (props) => {
 
             <FlatList
                 data={data}
-                renderItem={({ item }) =>
+                renderItem={({ item, index }) =>
                     <MenuTableRow
+                        index={index + 1}
                         data={item}
                         onEditPress={onEditPress}
                     />
                 }
-                keyExtractor={item => item.itemId}
+                keyExtractor={item => item._id}
                 showsVerticalScrollIndicator={false}
                 scrollEventThrottle={16}
                 style={styles.Container}

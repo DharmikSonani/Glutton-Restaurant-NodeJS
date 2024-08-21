@@ -38,6 +38,9 @@ const GENERATE_INVOICE_URL = `${INVOICE_BASE_URL}/generate`;
 
 const PACKAGE_BASE_URL = `${BASE_URL}/package`;
 
+const MENU_ITEM_BASE_URL = `${BASE_URL}/menu-item`;
+const MENU_CATEGORY_URL = `${MENU_ITEM_BASE_URL}/category`;
+
 // GET
 export const checkUserByUIDAPI = async (uid) => {
     const res = await axios.get(`${CHECK_USER_URL}/${uid}`);
@@ -71,6 +74,16 @@ export const getInvoiceByIDAPI = async (id) => {
 
 export const getPackagesAPI = async () => {
     const res = await axios.get(`${PACKAGE_BASE_URL}`);
+    return res;
+}
+
+export const getMenuItemsAPI = async (id) => {
+    const res = await axios.get(`${MENU_ITEM_BASE_URL}/${id}`);
+    return res;
+}
+
+export const getMenuCategoryByRestIDAPI = async (id) => {
+    const res = await axios.get(`${MENU_CATEGORY_URL}/${id}`);
     return res;
 }
 

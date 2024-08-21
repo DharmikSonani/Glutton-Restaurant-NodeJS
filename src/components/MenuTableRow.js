@@ -6,14 +6,15 @@ import { COLOR, GRADIENTCOLOR } from '../constants/Colors';
 import { MenuDataTableHeader } from '../constants/Helper';
 
 const MenuTableRow = ({
+    index = 0,
     data,
     onEditPress,
 }) => {
     return (
         <View style={styles.Container} >
-            <Text style={[{ width: MenuDataTableHeader[0].width }, styles.ListTextStyle]} numberOfLines={1}>{data.no}.</Text>
-            <Text style={[styles.ListTextStyle, { width: MenuDataTableHeader[1].width, textAlign: 'left', }]}>{data.itemName?.trim()}</Text>
-            <Text style={[{ width: MenuDataTableHeader[2].width }, styles.ListTextStyle]}>{data.category}</Text>
+            <Text style={[{ width: MenuDataTableHeader[0].width }, styles.ListTextStyle]} numberOfLines={1}>{index}.</Text>
+            <Text style={[styles.ListTextStyle, { width: MenuDataTableHeader[1].width, textAlign: 'left', }]}>{data.name?.trim()}</Text>
+            <Text style={[{ width: MenuDataTableHeader[2].width }, styles.ListTextStyle]}>{data?.category?.name}</Text>
             <Text style={[styles.ListTextStyle, { width: MenuDataTableHeader[3].width, textAlign: 'right' },]} numberOfLines={1}>₹{data.price}</Text>
             <View style={[{ width: MenuDataTableHeader[4].width, }, styles.ButtonContainer]}>
                 <TouchableOpacity

@@ -18,7 +18,7 @@ const EditItemModal = ({
 }) => {
     const [process, setProcess] = useState(false);
 
-    const [price, setPrice] = useState(data[RestaurantDBFields.Menu.price]);
+    const [price, setPrice] = useState(data['price'].toString());
     const path = RestaurantDBPath.doc(restId).collection('Menu').doc(data.itemId);
 
     const onUpdateItemPress = () => {
@@ -69,7 +69,7 @@ const EditItemModal = ({
                 .delete()
                 .then(() => {
                     setProcess(false);
-                    NormalSnackBar(`${data[RestaurantDBFields.Menu.itemName]} removed.`);
+                    NormalSnackBar(`${data['name']} removed.`);
                     setModalVisible(false);
                 })
         } catch (e) {
@@ -90,12 +90,12 @@ const EditItemModal = ({
             <View style={styles.ViewWrapper}>
                 <View style={styles.Container}>
                     <DataDisplayCardBlack
-                        title={data[RestaurantDBFields.Menu.category]}
+                        title={data?.category?.name}
                         style={{ marginTop: 0 }}
                     >
                         <FieldValuePairLabel
                             field={'Item Name'}
-                            value={data[RestaurantDBFields.Menu.itemName]}
+                            value={data['name']}
                         />
 
                         <FieldValuePairInput

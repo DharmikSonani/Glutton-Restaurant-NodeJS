@@ -33,14 +33,14 @@ const useScreenHooks = (props) => {
         if (cat == "All") {
             setData(allItemData);
         } else {
-            setData(allItemData.filter((i) => i?.category?.toLowerCase() == cat.toLowerCase()))
+            setData(allItemData.filter((i) => i?.category?.name?.toLowerCase() == cat.toLowerCase()))
         }
     }
 
     const onSearching = (text) => {
         setSearch(text);
         if (text.length > 0) {
-            setData(allItemData.filter((i) => i.itemName.toLowerCase().includes(text.toLowerCase())))
+            setData(allItemData.filter((i) => i?.name?.toLowerCase().includes(text.toLowerCase())))
         } else {
             setData(allItemData);
         }

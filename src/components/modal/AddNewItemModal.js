@@ -1,16 +1,16 @@
-import { ActivityIndicator, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { COLOR, GRADIENTCOLOR } from '../../constants/Colors';
 import { NormalSnackBar } from '../../constants/SnackBars';
-import { RestaurantDBPath } from '../../constants/Database';
-import firestore from '@react-native-firebase/firestore';
 import CustomButton from '../button/CustomButton';
 import { keyboardType } from '../../constants/Strings';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { SelectList } from 'react-native-dropdown-select-list';
 import DataDisplayCardBlack from '../DataDisplayCardBlack';
 import FieldValuePairInput from '../input/FieldValuePairInput';
+import { addMenuItemAPI } from '../../api/utils';
+import socketServices from '../../api/Socket';
 
 const AddNewItemModal = ({
     restId,
@@ -24,7 +24,7 @@ const AddNewItemModal = ({
     const [price, setPrice] = useState('');
     const [category, setCategory] = useState('');
 
-    const onAddItemPress = () => {
+    const onAddItemPress = async () => {
         try {
             if (!itemName) {
                 NormalSnackBar('Enter Item Name.');
@@ -38,27 +38,31 @@ const AddNewItemModal = ({
                 NormalSnackBar('Select Item Category.');
                 return;
             }
+
             setProcess(true);
-            try {
-                RestaurantDBPath
-                    .doc(restId)
-                    .collection('Menu')
-                    .doc()
-                    .set({
-                        itemName: itemName.trimEnd(),
-                        category: category.trimEnd(),
-                        price: price.trimEnd(),
-                        addedAt: firestore.Timestamp.fromDate(new Date()),
-                    }).then(() => {
-                        setProcess(false);
-                        NormalSnackBar(`${itemName} Added.`);
-                        setModalVisible(false);
-                    })
-            } catch (e) {
-                console.log(e);
+
+            const params = {
+                restId: restId,
+                name: itemName,
+                price: price,
+                category: {
+                    id: category?.key,
+                    name: category?.value,
+                }
+            };
+
+            const res = await addMenuItemAPI(params);
+
+            if (res?.data && res?.data?.data) {
+                NormalSnackBar(`${itemName} added.`);
+                setModalVisible(false);
+                socketServices.emit('MenuItemUpdate', res?.data?.data?.restId);
+            } else {
                 NormalSnackBar("Something wents wrong.");
-                setProcess(false);
             }
+
+            setProcess(false);
+
         } catch (error) {
             console.log(error);
             setProcess(false);
@@ -96,8 +100,7 @@ const AddNewItemModal = ({
                             <View style={{ flex: 1, }}>
                                 <SelectList
                                     data={categories}
-                                    save="value"
-                                    setSelected={(val) => setCategory(val)}
+                                    setSelected={(val) => setCategory(categories?.find((item) => item.key == val))}
 
                                     searchPlaceholder={'Search Category'}
                                     placeholder={'Select Category'}

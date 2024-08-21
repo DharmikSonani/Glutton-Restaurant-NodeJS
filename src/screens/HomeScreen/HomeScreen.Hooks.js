@@ -56,9 +56,15 @@ const useScreenHooks = (props) => {
         socketServices.on("CancelBookingForRestaurant", fetchAllBookings);
         socketServices.on("VerifyBookingForToday", getBookings);
         socketServices.on("VerifyBookingForRestaurant", fetchAllBookings);
+
         socketServices.on("RestReviewAdded", () => {
             fetchReviews();
             fetchRestData(restId);
+        });
+
+        socketServices.on("MenuItemUpdateOnRestaurant", () => {
+            fetchMenuItems();
+            fetchCategory();
         });
 
         return () => {
@@ -68,7 +74,10 @@ const useScreenHooks = (props) => {
             socketServices.removeListener('CancelBookingForRestaurant');
             socketServices.removeListener('VerifyBookingForToday');
             socketServices.removeListener('VerifyBookingForRestaurant');
+
             socketServices.removeListener('RestReviewAdded');
+
+            socketServices.removeListener('MenuItemUpdateOnRestaurant');
         }
     }, []);
 

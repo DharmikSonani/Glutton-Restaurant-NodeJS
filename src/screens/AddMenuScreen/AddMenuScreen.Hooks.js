@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux';
 import { Reducers } from '../../constants/Strings';
 import { useEffect, useState } from 'react';
-import { CategoryDBFields, CategoryDBPath } from '../../constants/Database';
+import { getAllMenuCategoriesAPI } from '../../api/utils';
 
 const useScreenHooks = (props) => {
 
@@ -47,18 +47,15 @@ const useScreenHooks = (props) => {
         selectedCat != "All" && setSelectedCat("All");
     }
 
-    const fetchAllCategories = () => {
+    const fetchAllCategories = async () => {
         try {
-            CategoryDBPath
-                .orderBy(CategoryDBFields.catName, "asc")
-                .onSnapshot((querySnap) => {
-                    const list = querySnap.docs.map((doc, i) => {
-                        const key = i + 1
-                        const { catName } = doc.data();
-                        return ({ key: key, value: catName, })
-                    })
-                    setAllCategory(list);
+            const res = await getAllMenuCategoriesAPI();
+            if (res?.data && res?.data?.data) {
+                const list = res?.data?.data.map((data) => {
+                    return ({ key: data?._id, value: data?.name })
                 })
+                setAllCategory(list);
+            }
         } catch (e) {
             console.log(e);
         }

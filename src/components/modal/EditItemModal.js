@@ -3,12 +3,13 @@ import React, { useState } from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { COLOR, GRADIENTCOLOR } from '../../constants/Colors';
 import { NormalSnackBar } from '../../constants/SnackBars';
-import { RestaurantDBFields, RestaurantDBPath } from '../../constants/Database';
 import CustomButton from '../button/CustomButton';
 import DataDisplayCardBlack from '../DataDisplayCardBlack';
 import FieldValuePairLabel from '../labels/FieldValuePairLabel';
 import FieldValuePairInput from '../input/FieldValuePairInput';
 import { keyboardType } from '../../constants/Strings';
+import { removeMenuItemAPI, updateMenuItemAPI } from '../../api/utils';
+import socketServices from '../../api/Socket';
 
 const EditItemModal = ({
     restId,
@@ -19,29 +20,25 @@ const EditItemModal = ({
     const [process, setProcess] = useState(false);
 
     const [price, setPrice] = useState(data['price'].toString());
-    const path = RestaurantDBPath.doc(restId).collection('Menu').doc(data.itemId);
 
-    const onUpdateItemPress = () => {
+    const onUpdateItemPress = async () => {
         try {
             if (!price || parseInt(price) <= 0) {
                 NormalSnackBar('Price Must be greater then 0.');
                 return;
             }
             setProcess(true);
-            try {
-                path
-                    .update({
-                        price: price.trimEnd(),
-                    }).then(() => {
-                        setProcess(false);
-                        NormalSnackBar(`${data[RestaurantDBFields.Menu.itemName]} price updated.`);
-                        setModalVisible(false);
-                    })
-            } catch (e) {
-                console.log(e);
+
+            const res = await updateMenuItemAPI(data?._id, { price: parseInt(price) });
+
+            if (res?.data && res?.data?.data) {
+                NormalSnackBar(`${data.name} price updated.`);
+                setModalVisible(false);
+                socketServices.emit('MenuItemUpdate', res?.data?.data?.restId);
+            } else {
                 NormalSnackBar("Something wents wrong.");
-                setProcess(false);
             }
+            setProcess(false);
         } catch (error) {
             console.log(error);
             setProcess(false);
@@ -62,16 +59,20 @@ const EditItemModal = ({
         )
     }
 
-    const RemoveItem = () => {
+    const RemoveItem = async () => {
         try {
             setProcess(true);
-            path
-                .delete()
-                .then(() => {
-                    setProcess(false);
-                    NormalSnackBar(`${data['name']} removed.`);
-                    setModalVisible(false);
-                })
+
+            const res = await removeMenuItemAPI(data?._id);
+
+            if (res?.data && res?.data?.data) {
+                NormalSnackBar(`${data.name} removed.`);
+                setModalVisible(false);
+                socketServices.emit('MenuItemUpdate', res?.data?.data?.restId);
+            } else {
+                NormalSnackBar("Something wents wrong.");
+            }
+            setProcess(false);
         } catch (e) {
             console.log(e);
             setProcess(false);

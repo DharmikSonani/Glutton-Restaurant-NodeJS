@@ -39,7 +39,12 @@ const GENERATE_INVOICE_URL = `${INVOICE_BASE_URL}/generate`;
 const PACKAGE_BASE_URL = `${BASE_URL}/package`;
 
 const MENU_ITEM_BASE_URL = `${BASE_URL}/menu-item`;
+const ADD_MENU_ITEM_URL = `${MENU_ITEM_BASE_URL}/add`;
+const UPDATE_MENU_ITEM_URL = `${MENU_ITEM_BASE_URL}/update`;
+const REMOVE_MENU_ITEM_URL = `${MENU_ITEM_BASE_URL}/remove`;
 const MENU_CATEGORY_URL = `${MENU_ITEM_BASE_URL}/category`;
+
+const MENU_CATEGORY_BASE_URL = `${BASE_URL}/menu-category`;
 
 // GET
 export const checkUserByUIDAPI = async (uid) => {
@@ -87,6 +92,11 @@ export const getMenuCategoryByRestIDAPI = async (id) => {
     return res;
 }
 
+export const getAllMenuCategoriesAPI = async () => {
+    const res = await axios.get(`${MENU_CATEGORY_BASE_URL}`);
+    return res;
+}
+
 // POST
 export const registerRestaurantAPI = async (params) => {
     const res = await axios.post(`${RESTAURANT_REGISTER_URL}`, params);
@@ -108,6 +118,10 @@ export const getAllBookingsAPI = async (id) => {
     return res;
 }
 
+export const addMenuItemAPI = async (params) => {
+    const res = await axios.post(`${ADD_MENU_ITEM_URL}`, params);
+    return res;
+}
 
 // PATCH
 export const packageActivationAPI = async (uid, params) => {
@@ -140,8 +154,18 @@ export const generateInvoiceAPI = async (id) => {
     return res;
 }
 
+export const updateMenuItemAPI = async (id, params) => {
+    const res = await axios.patch(`${UPDATE_MENU_ITEM_URL}/${id}`, params);
+    return res;
+}
+
 // DELETE
 export const removePhotoAPI = async (uid, params) => {
     const res = await axios.delete(`${REMOVE_PHOTO_URL}/${uid}`, { data: params });
+    return res;
+}
+
+export const removeMenuItemAPI = async (id) => {
+    const res = await axios.delete(`${REMOVE_MENU_ITEM_URL}/${id}`);
     return res;
 }

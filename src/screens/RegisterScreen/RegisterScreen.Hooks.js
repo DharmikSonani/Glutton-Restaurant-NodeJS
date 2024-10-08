@@ -17,6 +17,7 @@ import { setRestDataInRedux } from '../../redux/RestaurantData/RestDataAction';
 import { emailRegEx, passwordRegEx } from '../../constants/RegularExpression';
 import Geolocation from 'react-native-geolocation-service';
 import { checkMobileNoOfRestaurantAPI, registerRestaurantAPI } from '../../api/utils';
+import socketServices from '../../api/Socket';
 
 const useScreenHooks = (props) => {
 
@@ -269,6 +270,7 @@ const useScreenHooks = (props) => {
             const res = await registerRestaurantAPI(params);
 
             if (res?.data && res?.data?.data) {
+                socketServices.emit('RestoUpdates', res?.data?.data);
                 await storeAuthID(uid);
                 reset();
                 dispatch(setAuthIDInRedux(uid));

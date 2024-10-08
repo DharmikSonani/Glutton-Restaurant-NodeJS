@@ -10,6 +10,7 @@ import axios from 'axios';
 import storage from '@react-native-firebase/storage';
 import { updateRestaurantAPI } from '../../api/utils';
 import { setRestDataInRedux } from '../../redux/RestaurantData/RestDataAction';
+import socketServices from '../../api/Socket';
 
 const useScreenHooks = (props) => {
 
@@ -155,6 +156,7 @@ const useScreenHooks = (props) => {
             const res = await updateRestaurantAPI(restId, data);
 
             if (res?.data && res?.data?.data) {
+                socketServices.emit('RestoUpdates', res?.data?.data);
                 dispatch(setRestDataInRedux(res?.data?.data));
                 NormalSnackBar('Details Updated');
                 navigation.pop(1);

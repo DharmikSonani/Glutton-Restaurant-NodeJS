@@ -1,10 +1,15 @@
+import { Platform, ToastAndroid } from "react-native";
 import Snackbar from "react-native-snackbar";
 
 export const NormalSnackBar = (msg) => {
-    return Snackbar.show({
-        text: msg,
-        duration: Snackbar.LENGTH_SHORT,
-    });
+    if (Platform.OS === 'android') {
+        ToastAndroid.show(msg, ToastAndroid.SHORT);
+    } else {
+        return Snackbar.show({
+            text: msg,
+            duration: Snackbar.LENGTH_SHORT,
+        });
+    }
 }
 
 export const ActionSnackBar = (msg, label, action) => {

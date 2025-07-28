@@ -1,9 +1,7 @@
 import axios from "axios";
 
-// export const DOMAIN = `https://glutton-server.vercel.app/`; // Live Server
-export const DOMAIN = `https://formally-valid-mite.ngrok-free.app/`; // NGROCK Live Server
-
-export const SOCKET_URL = 'https://formally-valid-mite.ngrok-free.app/';
+export const DOMAIN = `https://glutton-server.onrender.com/`; // Live Server
+// export const DOMAIN = `https://formally-valid-mite.ngrok-free.app/`; // Local Server
 
 const BASE_URL = `${DOMAIN}api/`;
 

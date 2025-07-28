@@ -1,10 +1,10 @@
 import io from 'socket.io-client';
-import { SOCKET_URL } from './utils';
+import { DOMAIN } from './utils';
 
 class WSService {
     initializeSocket = async (url) => {
         try {
-            this.socket = io(url ? url : SOCKET_URL, {
+            this.socket = io(url ? url : DOMAIN, {
                 transports: ['websocket']
             })
 

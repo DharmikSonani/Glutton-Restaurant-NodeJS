@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const DOMAIN = `https://glutton-server.onrender.com/`; // Live Server
+export const DOMAIN = `https://glutton-backend-mnuu.onrender.com/`; // Live Server
 // export const DOMAIN = `https://formally-valid-mite.ngrok-free.app/`; // Local Server
 
 const BASE_URL = `${DOMAIN}api/`;
